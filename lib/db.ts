@@ -49,7 +49,7 @@ export async function updateCustomer(id: string, data: { name?: string; email?: 
   if (updates.length === 0) return null;
 
   values.push(id);
-  const query = `UPDATE customers SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING *`;
+  const query = `UPDATE customers SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING id, name, email, phone, points_balance, tier_id, created_at`;
   const result = await sql.query(query, values);
   return result.rows[0];
 }
