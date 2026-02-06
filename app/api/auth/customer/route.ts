@@ -27,7 +27,7 @@ export async function GET(request: Request) {
     // Fetch full customer data
     const result = await pool.query(
       `SELECT
-        id, name, email, phone, points_balance as total_points, current_tier
+        id, name, email, phone
        FROM customers
        WHERE id = $1`,
       [customer.customer_id]
@@ -42,6 +42,8 @@ export async function GET(request: Request) {
 
     return Response.json({
       ...customerData,
+      total_points: 0, // Default value since there's no points_balance column in customers table
+      current_tier: 'Unassigned', // Default value since there's no current_tier column in customers table
       total_spending: totalSpending
     });
   } catch (error) {

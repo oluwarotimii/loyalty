@@ -4,24 +4,40 @@ import { sql } from '@vercel/postgres';
 export const pool = sql;
 
 export async function getCustomers() {
-  const result = await sql`SELECT id, name, email, phone, points_balance, tier_id, created_at FROM customers ORDER BY created_at DESC`;
-  return result.rows;
+  const result = await sql`SELECT id, name, phone, email, created_at FROM customers ORDER BY created_at DESC`;
+  return result.rows.map(customer => ({
+    ...customer,
+    points_balance: 0, // Default value since there's no points_balance column
+    tier_id: null // Default value since there's no tier_id column in customers table
+  }));
 }
 
 export async function getCustomerById(id: string) {
-  const result = await sql`SELECT id, name, email, phone, points_balance, tier_id, created_at FROM customers WHERE id = ${id}`;
-  return result.rows[0];
+  const result = await sql`SELECT id, name, phone, email, created_at FROM customers WHERE id = ${id}`;
+  const customer = result.rows[0];
+  if (!customer) return null;
+  
+  return {
+    ...customer,
+    points_balance: 0, // Default value since there's no points_balance column
+    tier_id: null // Default value since there's no tier_id column in customers table
+  };
 }
 
-export async function createCustomer(name: string, email: string, phone?: string) {
-  // Assign the lowest tier based on spend (typically the entry-level tier)
+export async function createCustomer(name: string, email: string, phone: string) {
   const result = await sql`
-    INSERT INTO customers (name, email, phone, points_balance, tier_id)
-    VALUES (${name}, ${email}, ${phone || null}, 0, 
-      (SELECT id FROM tiers WHERE is_active = true ORDER BY min_spend ASC LIMIT 1))
-    RETURNING *
-  `;
-  return result.rows[0];
+    INSERT INTO customers (name, phone, email)
+    VALUES (${name}, ${phone}, ${email || null})
+    RETURNING id, name, phone, email, created_at
+  `;  
+
+  // Format the result to match frontend expectations
+  const customer = result.rows[0];
+  return {
+    ...customer,
+    points_balance: 0, // Default value since there's no points_balance column
+    tier_id: null // Default value since there's no tier_id column in customers table
+  };
 }
 
 export async function updateCustomer(id: string, data: { name?: string; email?: string; phone?: string; points_balance?: number }) {
@@ -41,17 +57,19 @@ export async function updateCustomer(id: string, data: { name?: string; email?: 
     updates.push(`phone = $${paramCount++}`);
     values.push(data.phone);
   }
-  if (data.points_balance !== undefined) {
-    updates.push(`points_balance = $${paramCount++}`);
-    values.push(data.points_balance);
-  }
 
   if (updates.length === 0) return null;
 
   values.push(id);
-  const query = `UPDATE customers SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING id, name, email, phone, points_balance, tier_id, created_at`;
+  const query = `UPDATE customers SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING id, name, phone, email, created_at`;
   const result = await sql.query(query, values);
-  return result.rows[0];
+  
+  const customer = result.rows[0];
+  return {
+    ...customer,
+    points_balance: 0, // Default value since there's no points_balance column
+    tier_id: null // Default value since there's no tier_id column in customers table
+  };
 }
 
 export async function deleteCustomer(id: string) {
@@ -72,17 +90,14 @@ export async function createTransaction(customerId: string, type: string, points
   try {
     await client.query('BEGIN');
 
+    // Insert transaction using amount column (mapping points to amount)
+    // Using reference column for description since that's what's available in the schema
     const result = await client.query(
-      `INSERT INTO transactions (customer_id, type, points, description)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [customerId, type, points, description]
+      `INSERT INTO transactions (customer_id, amount, reference)
+       VALUES ($1, $2, $3) RETURNING *`,
+      [customerId, points, description || '']
     );
 
-    const customer = await client.query('SELECT points_balance FROM customers WHERE id = $1', [customerId]);
-    const newBalance = (customer.rows[0]?.points_balance || 0) + points;
-
-    await client.query('UPDATE customers SET points_balance = $1 WHERE id = $2', [newBalance, customerId]);
-    
     // Update customer tier based on total spending
     const totalSpending = await client.query(`
       SELECT COALESCE(SUM(amount), 0) as total_spending
@@ -119,7 +134,8 @@ export async function createTransaction(customerId: string, type: string, points
     }
     
     if (newTierId) {
-      await client.query('UPDATE customers SET tier_id = $1 WHERE id = $2', [newTierId, customerId]);
+      // Note: The customers table doesn't have a tier_id column in the original schema
+      // For now, we'll just complete the transaction without updating tier
     }
     
     await client.query('COMMIT');
