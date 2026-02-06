@@ -12,7 +12,7 @@ interface Customer {
   name: string;
   email: string;
   phone?: string;
-  points_balance: number;
+  total_spending: number;
   tier_id: string;
   created_at: string;
 }

@@ -10,7 +10,7 @@ interface Customer {
   name: string;
   email: string;
   phone?: string;
-  points_balance: number;
+  total_spending: number;
   tier_id: string;
   created_at: string;
 }
@@ -24,8 +24,8 @@ interface TierBenefit {
 interface Tier {
   id: string;
   name: string;
-  min_points: number;
-  max_points?: number;
+  min_amount: number;
+  max_amount?: number;
   rank_order: number;
   evaluation_period: string;
   is_active: boolean;

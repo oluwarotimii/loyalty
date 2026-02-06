@@ -7,7 +7,7 @@ interface Customer {
   name: string;
   email: string;
   phone?: string;
-  points_balance: number;
+  total_spending: number;
   tier_id: string;
   created_at: string;
 }
@@ -17,7 +17,7 @@ interface LeaderboardProps {
 }
 
 export default function Leaderboard({ customers }: LeaderboardProps) {
-  const sorted = [...customers].sort((a, b) => b.points_balance - a.points_balance);
+  const sorted = [...customers].sort((a, b) => b.total_spending - a.total_spending);
 
   return (
     <Card className="p-4">
@@ -38,8 +38,8 @@ export default function Leaderboard({ customers }: LeaderboardProps) {
                 </div>
               </div>
               <div className="text-right">
-                <p className="font-bold text-lg">{customer.points_balance}</p>
-                <p className="text-xs text-muted-foreground">points</p>
+                <p className="font-bold text-lg">₦{Number(customer.total_spending).toFixed(2)}</p>
+                <p className="text-xs text-muted-foreground">spent</p>
               </div>
             </div>
           ))

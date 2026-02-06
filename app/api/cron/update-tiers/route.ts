@@ -47,7 +47,7 @@ export async function GET(request: NextRequest) {
 
         // Log tier update
         await sql`
-          INSERT INTO transactions (customer_id, type, points, description)
+          INSERT INTO transactions (customer_id, type, amount, description)
           VALUES (${customer.id}, 'tier-update', 0, 'Tier updated automatically based on spending')
         `;
       }

@@ -59,7 +59,7 @@ export default function CustomerLoginPage() {
               My Rewards
             </h1>
             <p className="text-muted-foreground">
-              Check your loyalty points and benefits
+              Check your loyalty spending and benefits
             </p>
           </div>
 

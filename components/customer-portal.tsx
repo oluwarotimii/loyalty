@@ -11,7 +11,7 @@ interface Customer {
   name: string;
   email: string;
   phone: string;
-  total_points: number;
+  total_amount: number;
   total_spending: number;
   current_tier: string;
 }
@@ -108,13 +108,13 @@ export default function CustomerPortal() {
   }
 
   const currentTier = tiers.find((t) => t.name === customer.current_tier);
-  const nextTier = tiers.find((t) => t.min_points > customer.total_points);
-  const pointsToNextTier = nextTier
-    ? nextTier.min_points - customer.total_points
+  const nextTier = tiers.find((t) => t.min_amount > customer.total_amount);
+  const amountToNextTier = nextTier
+    ? nextTier.min_amount - customer.total_amount
     : 0;
   const progressPercent = nextTier
-    ? ((customer.total_points - (currentTier?.min_points || 0)) /
-        (nextTier.min_points - (currentTier?.min_points || 0))) *
+    ? ((customer.total_amount - (currentTier?.min_amount || 0)) /
+        (nextTier.min_amount - (currentTier?.min_amount || 0))) *
       100
     : 100;
 
@@ -135,12 +135,12 @@ export default function CustomerPortal() {
 
       <div className="container mx-auto px-4 py-8">
         <div className="space-y-6">
-          {/* Points Card */}
+          {/* Amount Card */}
           <Card className="p-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
             <div className="space-y-4">
-              <h2 className="text-lg font-semibold">Your Points</h2>
-              <div className="text-5xl font-bold">{customer.total_points}</div>
-              <p className="text-purple-100">Total loyalty points</p>
+              <h2 className="text-lg font-semibold">Your Total Spending</h2>
+              <div className="text-5xl font-bold">₦{Number(customer.total_amount).toFixed(2)}</div>
+              <p className="text-purple-100">Total loyalty spending</p>
             </div>
           </Card>
 
@@ -164,7 +164,7 @@ export default function CustomerPortal() {
                   </span>
                   {nextTier && (
                     <span className="text-sm text-muted-foreground">
-                      {pointsToNextTier} points to {nextTier.name}
+                      ₦{amountToNextTier} to {nextTier.name}
                     </span>
                   )}
                 </div>
@@ -249,7 +249,7 @@ export default function CustomerPortal() {
                   <div className="flex justify-between items-start mb-2">
                     <h4 className="font-semibold">{tier.name}</h4>
                     <span className="text-sm text-muted-foreground">
-                      {tier.min_points}+ points
+                      ₦{tier.min_amount}+ spending
                     </span>
                   </div>
                   {tier.benefits.length > 0 && (

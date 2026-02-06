@@ -5,8 +5,8 @@ import { Card } from '@/components/ui/card';
 interface Tier {
   id: string;
   name: string;
-  min_points: number;
-  max_points: number;
+  min_amount: number;
+  max_amount: number;
 }
 
 interface TierManagerProps {
@@ -27,17 +27,17 @@ export default function TierManager({ tiers }: TierManagerProps) {
   return (
     <div className="space-y-4">
       <Card className="p-4">
-        <h2 className="text-xl font-bold mb-4">Loyalty Tiers</h2>
+        <h2 className="text-xl font-bold mb-4">Spending Tiers</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
           {tiers.map((tier) => (
             <div key={tier.id} className={`p-4 rounded-lg border ${getTierColor(tier.name)}`}>
               <h3 className="font-bold text-lg mb-2">{tier.name}</h3>
               <div className="text-sm space-y-1">
                 <p>
-                  <span className="opacity-70">Min Points:</span> {tier.min_points}
+                  <span className="opacity-70">Min Spending (₦):</span> {tier.min_amount}
                 </p>
                 <p>
-                  <span className="opacity-70">Max Points:</span> {tier.max_points}
+                  <span className="opacity-70">Max Spending (₦):</span> {tier.max_amount}
                 </p>
               </div>
             </div>

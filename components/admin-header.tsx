@@ -31,7 +31,7 @@ export default function AdminHeader() {
       <div className="flex items-center justify-between px-6 py-4">
         <div className="flex items-center gap-2">
           <h1 className="text-xl font-bold text-foreground">
-            Loyalty Dashboard
+            Spending Dashboard
           </h1>
         </div>
 

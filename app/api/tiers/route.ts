@@ -42,9 +42,9 @@ export async function GET(request: Request) {
     // Combine tiers with their benefits
     const tiersWithBenefits = tiers.map(tier => ({
       ...tier,
-      min_points: tier.min_spend, // Maintain backward compatibility
+      min_amount: tier.min_spend, // Amount-based model
       min_spend: tier.min_spend,  // Also include the actual field
-      max_points: null,           // No max_points in the schema
+      max_amount: null,           // No max_amount in the schema
       benefits: benefitsByTier[tier.id] || []
     }));
     

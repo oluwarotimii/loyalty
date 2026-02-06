@@ -1,10 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { getCustomers, createCustomer } from '@/lib/db';
+import { getCustomers, createCustomer, getCustomerById } from '@/lib/db';
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
-    const customers = await getCustomers();
-    return NextResponse.json(customers);
+    const { searchParams } = new URL(request.url);
+    const id = searchParams.get('id');
+    
+    if (id) {
+      // Fetch individual customer by ID
+      const customer = await getCustomerById(id);
+      if (!customer) {
+        return NextResponse.json({ error: 'Customer not found' }, { status: 404 });
+      }
+      return NextResponse.json(customer);
+    } else {
+      // Fetch all customers
+      const customers = await getCustomers();
+      return NextResponse.json(customers);
+    }
   } catch (error) {
     console.error('Error fetching customers:', error);
     return NextResponse.json({ error: 'Failed to fetch customers' }, { status: 500 });

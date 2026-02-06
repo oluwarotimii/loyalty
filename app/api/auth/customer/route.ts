@@ -42,7 +42,7 @@ export async function GET(request: Request) {
 
     return Response.json({
       ...customerData,
-      total_points: 0, // Default value since there's no points_balance column in customers table
+      total_amount: totalSpending, // Amount-based model
       current_tier: 'Unassigned', // Default value since there's no current_tier column in customers table
       total_spending: totalSpending
     });

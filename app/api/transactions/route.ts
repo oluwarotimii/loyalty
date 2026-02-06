@@ -16,13 +16,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { customerId, type, points, description } = await request.json();
+    const { customerId, type, amount, description } = await request.json();
 
-    if (!customerId || !type || points === undefined) {
+    if (!customerId || !type || amount === undefined) {
       return NextResponse.json({ error: 'Missing required fields' }, { status: 400 });
     }
 
-    const transaction = await createTransaction(customerId, type, points, description);
+    const transaction = await createTransaction(customerId, type, amount, description);
     return NextResponse.json(transaction, { status: 201 });
   } catch (error) {
     console.error('Error creating transaction:', error);

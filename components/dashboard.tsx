@@ -17,7 +17,7 @@ interface Customer {
   name: string;
   email: string;
   phone?: string;
-  points_balance: number;
+  total_spending: number;
   tier_id: string;
   created_at: string;
 }
@@ -31,8 +31,8 @@ interface TierBenefit {
 interface Tier {
   id: string;
   name: string;
-  min_points: number;
-  max_points?: number;
+  min_amount: number;
+  max_amount?: number;
   min_spend: number;
   max_spend?: number;
   rank_order: number;
@@ -71,7 +71,7 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
     <div className="flex flex-col min-h-screen">
       <header className="border-b border-border bg-card px-6 py-4">
         <h1 className="text-3xl font-bold">Loyalty Management Platform</h1>
-        <p className="text-muted-foreground mt-1">Manage customers, points, and loyalty tiers</p>
+        <p className="text-muted-foreground mt-1">Manage customers, spending, and loyalty tiers</p>
       </header>
 
       <div className="flex-1 px-6 py-6 space-y-6">
@@ -114,8 +114,8 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
                         </p>
                       )}
                       <p>
-                        <span className="text-muted-foreground">Points:</span>
-                        <span className="font-semibold ml-1">{selectedCustomer.points_balance}</span>
+                        <span className="text-muted-foreground">Total Spending:</span>
+                        <span className="font-semibold ml-1">₦{Number(selectedCustomer.total_spending).toFixed(2)}</span>
                       </p>
                     </div>
                   </div>

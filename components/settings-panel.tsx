@@ -13,9 +13,9 @@ export default function SettingsPanel() {
   ];
 
   const policies = [
-    { title: 'Points Expiration', value: '2 years', icon: '⏰' },
-    { title: 'Birthday Bonus', value: '100 points', icon: '🎂' },
-    { title: 'Referral Reward', value: '50 points', icon: '👥' },
+    { title: 'Spending Milestones', value: 'Automatic tracking', icon: '⏰' },
+    { title: 'Birthday Bonus', value: '10% discount', icon: '🎂' },
+    { title: 'Referral Reward', value: '5% commission', icon: '👥' },
     { title: 'Auto Tier Update', value: 'Daily at midnight', icon: '⚙️' },
   ];
 
@@ -29,11 +29,11 @@ export default function SettingsPanel() {
               <h3 className="font-semibold mb-2">{setting.label}</h3>
               <div className="flex gap-4">
                 <div className="flex-1">
-                  <label className="text-sm text-muted-foreground">Min Points</label>
+                  <label className="text-sm text-muted-foreground">Min Spending (₦)</label>
                   <Input type="number" value={setting.min} disabled className="mt-1" />
                 </div>
                 <div className="flex-1">
-                  <label className="text-sm text-muted-foreground">Max Points</label>
+                  <label className="text-sm text-muted-foreground">Max Spending (₦)</label>
                   <Input type="number" value={setting.max} disabled className="mt-1" />
                 </div>
               </div>

@@ -18,8 +18,8 @@ interface TierBenefit {
 interface Tier {
   id?: string;
   name: string;
-  min_points: number;
-  max_points?: number;
+  min_amount: number;
+  max_amount?: number;
   min_spend: number;
   max_spend?: number;
   rank_order: number;
@@ -46,8 +46,8 @@ export default function TierEditor({ initialTiers }: TierEditorProps) {
   const handleAddTier = () => {
     const newTier: Tier = {
       name: '',
-      min_points: 0,
-      max_points: null,
+      min_amount: 0,
+      max_amount: null,
       min_spend: 0,
       max_spend: null,
       rank_order: tiers.length,
@@ -277,13 +277,13 @@ export default function TierEditor({ initialTiers }: TierEditorProps) {
               </div>
 
               <div>
-                <Label htmlFor="max_points">Maximum Points</Label>
+                <Label htmlFor="max_amount">Maximum Amount (₦)</Label>
                 <Input
-                  id="max_points"
+                  id="max_amount"
                   type="number"
-                  value={editingTier.max_points || 0}
-                  onChange={(e) => handleChange('max_points', parseInt(e.target.value) || 0)}
-                />  
+                  value={editingTier.max_amount || 0}
+                  onChange={(e) => handleChange('max_amount', parseInt(e.target.value) || 0)}
+                />
               </div>
               
               <div>

@@ -19,7 +19,7 @@ interface Customer {
   name: string;
   email: string;
   phone?: string;
-  points_balance: number;
+  total_spending: number;
   tier_id: string;
   created_at: string;
 }
@@ -38,14 +38,14 @@ export default function TransactionPanel({
   const [formData, setFormData] = useState({
     customerId: selectedCustomer?.id || '',
     type: 'purchase',
-    points: '',
+    amount: '',
     description: '',
   });
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.customerId || !formData.points) return;
+    if (!formData.customerId || !formData.amount) return;
 
     setLoading(true);
     try {
@@ -55,7 +55,7 @@ export default function TransactionPanel({
         body: JSON.stringify({
           customerId: formData.customerId,
           type: formData.type,
-          points: parseInt(formData.points),
+          amount: parseInt(formData.amount),
           description: formData.description,
         }),
       });
@@ -67,7 +67,7 @@ export default function TransactionPanel({
       const updatedCustomer = await customerResponse.json();
       onCustomerUpdated(updatedCustomer);
 
-      setFormData({ customerId: formData.customerId, type: 'purchase', points: '', description: '' });
+      setFormData({ customerId: formData.customerId, type: 'purchase', amount: '', description: '' });
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -104,20 +104,20 @@ export default function TransactionPanel({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="purchase">Purchase</SelectItem>
-                <SelectItem value="referral">Referral</SelectItem>
+                {/* <SelectItem value="referral">Referral</SelectItem>
                 <SelectItem value="bonus">Bonus</SelectItem>
-                <SelectItem value="redemption">Redemption</SelectItem>
+                <SelectItem value="redemption">Redemption</SelectItem> */}
               </SelectContent>
             </Select>
           </div>
 
           <div>
-            <label className="text-sm font-medium">Points</label>
+            <label className="text-sm font-medium">Amount</label>
             <Input
               type="number"
               placeholder="0"
-              value={formData.points}
-              onChange={(e) => setFormData({ ...formData, points: e.target.value })}
+              value={formData.amount}
+              onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
               required
             />
           </div>
@@ -137,30 +137,30 @@ export default function TransactionPanel({
         </form>
       </Card>
 
-      {selectedCustomer && (
+      {/* {selectedCustomer && (
         <Card className="p-4">
-          <h3 className="text-lg font-bold mb-4">Quick Add Points</h3>
+          <h3 className="text-lg font-bold mb-4">Quick Add Amount</h3>
           <div className="space-y-3">
-            {[10, 50, 100, 500].map((points) => (
+            {[10, 50, 100, 500].map((amount) => (
               <Button
-                key={points}
+                key={amount}
                 variant="outline"
                 onClick={() => {
                   setFormData({
                     customerId: selectedCustomer.id,
                     type: 'bonus',
-                    points: points.toString(),
+                    amount: amount.toString(),
                     description: 'Quick bonus',
                   });
                 }}
                 className="w-full"
               >
-                Add {points} Points
+                Add ₦{amount}
               </Button>
             ))}
           </div>
         </Card>
-      )}
+      )} */}
     </div>
   );
 }

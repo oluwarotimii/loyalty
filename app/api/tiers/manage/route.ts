@@ -13,14 +13,14 @@ export async function POST(request: NextRequest) {
     const body = await request.json();
     
     if (body.type === 'tier') {
-      // Map min_points to min_spend for backward compatibility
+      // Map min_amount to min_spend for backward compatibility
       const tierData = {
         ...body.data,
-        min_spend: body.data.min_points !== undefined ? body.data.min_points : body.data.min_spend
+        min_spend: body.data.min_amount !== undefined ? body.data.min_amount : body.data.min_spend
       };
-      // Remove min_points if it exists to avoid conflicts
-      if ('min_points' in tierData) delete tierData.min_points;
-      
+      // Remove min_amount if it exists to avoid conflicts
+      if ('min_amount' in tierData) delete tierData.min_amount;
+
       const tier = await createTier(tierData);
       return Response.json(tier);
     } else if (body.type === 'benefit') {
@@ -48,13 +48,13 @@ export async function PUT(request: NextRequest) {
     const body = await request.json();
     
     if (type === 'tier') {
-      // Map min_points to min_spend for backward compatibility
+      // Map min_amount to min_spend for backward compatibility
       const tierData = { ...body };
-      if (tierData.min_points !== undefined) {
-        tierData.min_spend = tierData.min_points;
-        delete tierData.min_points;
+      if (tierData.min_amount !== undefined) {
+        tierData.min_spend = tierData.min_amount;
+        delete tierData.min_amount;
       }
-      
+
       const tier = await updateTier(id, tierData);
       return Response.json(tier);
     } else if (type === 'benefit') {

@@ -7,8 +7,18 @@ interface Transaction {
   id: string;
   customer_id: string;
   type: string;
-  points: number;
+  amount: number;
   description?: string;
+  created_at: string;
+}
+
+interface Customer {
+  id: string;
+  name: string;
+  email: string;
+  phone?: string;
+  total_spending: number;
+  tier_id: string;
   created_at: string;
 }
 
@@ -18,24 +28,33 @@ interface TransactionHistoryProps {
 
 export default function TransactionHistory({ customerId }: TransactionHistoryProps) {
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+  const [customer, setCustomer] = useState<Customer | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchTransactions = async () => {
+    const fetchData = async () => {
       try {
-        const response = await fetch(`/api/transactions/${customerId}`);
-        if (response.ok) {
-          const data = await response.json();
-          setTransactions(data);
+        // Fetch customer data
+        const customerResponse = await fetch(`/api/customers?id=${customerId}`);
+        if (customerResponse.ok) {
+          const customerData = await customerResponse.json();
+          setCustomer(customerData);
+        }
+
+        // Fetch transactions
+        const transactionsResponse = await fetch(`/api/transactions/${customerId}`);
+        if (transactionsResponse.ok) {
+          const transactionsData = await transactionsResponse.json();
+          setTransactions(transactionsData);
         }
       } catch (error) {
-        console.error('Error fetching transactions:', error);
+        console.error('Error fetching data:', error);
       } finally {
         setLoading(false);
       }
     };
 
-    fetchTransactions();
+    fetchData();
   }, [customerId]);
 
   const getTypeColor = (type: string) => {
@@ -60,7 +79,10 @@ export default function TransactionHistory({ customerId }: TransactionHistoryPro
 
   return (
     <Card className="p-4">
-      <h3 className="text-lg font-bold mb-4">Transaction History</h3>
+      <h3 className="text-lg font-bold mb-2">Transaction History</h3>
+      {customer && (
+        <p className="text-sm text-muted-foreground mb-4">For: {customer.name}</p>
+      )}
       {loading ? (
         <p className="text-muted-foreground text-center py-4">Loading...</p>
       ) : transactions.length === 0 ? (
@@ -77,8 +99,8 @@ export default function TransactionHistory({ customerId }: TransactionHistoryPro
                 </div>
               </div>
               <div className="text-right">
-                <p className={`font-bold ${tx.points > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {tx.points > 0 ? '+' : ''}{tx.points}
+                <p className={`font-bold ${tx.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  ₦{tx.amount}
                 </p>
                 <p className="text-xs text-muted-foreground">{new Date(tx.created_at).toLocaleDateString()}</p>
               </div>

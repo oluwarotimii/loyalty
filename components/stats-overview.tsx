@@ -7,7 +7,7 @@ interface Customer {
   name: string;
   email: string;
   phone?: string;
-  points_balance: number;
+  total_spending: number;
   tier_id: string;
   created_at: string;
 }
@@ -18,14 +18,14 @@ interface StatsOverviewProps {
 
 export default function StatsOverview({ customers }: StatsOverviewProps) {
   const totalCustomers = customers.length;
-  const totalPoints = customers.reduce((sum, c) => sum + c.points_balance, 0);
-  const avgPoints = totalCustomers > 0 ? Math.floor(totalPoints / totalCustomers) : 0;
-  const topCustomer = customers.length > 0 ? customers.reduce((max, c) => (c.points_balance > max.points_balance ? c : max)) : null;
+  const totalSpending = customers.reduce((sum, c) => sum + Number(c.total_spending), 0);
+  const avgSpending = totalCustomers > 0 ? Math.floor(totalSpending / totalCustomers) : 0;
+  const topCustomer = customers.length > 0 ? customers.reduce((max, c) => (Number(c.total_spending) > Number(max.total_spending) ? c : max)) : null;
 
   const stats = [
     { label: 'Total Customers', value: totalCustomers, icon: '👥' },
-    { label: 'Total Points', value: totalPoints.toLocaleString(), icon: '⭐' },
-    { label: 'Average Points', value: avgPoints, icon: '📊' },
+    // { label: 'Total Spending', value: `₦${totalSpending.toLocaleString()}`, icon: '💰' },
+    // { label: 'Average Spending', value: `₦${avgSpending}`, icon: '📊' },
     { label: 'Top Customer', value: topCustomer?.name || 'N/A', icon: '🏆' },
   ];
 

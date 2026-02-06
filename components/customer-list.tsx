@@ -8,7 +8,7 @@ interface Customer {
   name: string;
   email: string;
   phone?: string;
-  points_balance: number;
+  total_spending: number;
   tier_id: string;
   created_at: string;
 }
@@ -58,7 +58,7 @@ export default function CustomerList({
                     <p className="font-semibold">{customer.name}</p>
                     <p className="text-xs text-muted-foreground">{customer.email}</p>
                   </div>
-                  <span className="text-sm font-bold">{customer.points_balance}pts</span>
+                  <span className="text-sm font-bold">₦{Number(customer.total_spending).toFixed(2)}</span>
                 </div>
               </div>
               {selectedCustomer?.id === customer.id && (

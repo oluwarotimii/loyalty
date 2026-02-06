@@ -19,7 +19,7 @@ interface Customer {
   name: string;
   email: string;
   phone?: string;
-  points_balance: number;
+  total_spending: number;
   tier_id: string;
   created_at: string;
 }
@@ -70,8 +70,8 @@ export default function NotificationPanel({ customers }: NotificationPanelProps)
 
   const notificationTemplates = {
     'tier-upgrade': 'Congratulations! You\'ve reached a new tier.',
-    'points-milestone': 'You\'ve reached a points milestone!',
-    'redemption': 'Your points have been redeemed.',
+    'spending-milestone': 'You\'ve reached a spending milestone!',
+    'redemption': 'Your spending has earned rewards.',
     'promotion': 'Exclusive promotion available for you!',
   };
 
