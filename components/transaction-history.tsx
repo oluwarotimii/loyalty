@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { Card } from '@/components/ui/card';
+import { ShoppingCart, User, Star, Gift, DollarSign } from 'lucide-react';
 
 interface Transaction {
   id: string;
@@ -68,38 +69,38 @@ export default function TransactionHistory({ customerId }: TransactionHistoryPro
   };
 
   const getTypeIcon = (type: string) => {
-    const icons: { [key: string]: string } = {
-      purchase: '🛍️',
-      referral: '👥',
-      bonus: '⭐',
-      redemption: '🎁',
+    const icons: { [key: string]: JSX.Element } = {
+      purchase: <ShoppingCart className="w-5 h-5" />,
+      referral: <User className="w-5 h-5" />,
+      bonus: <Star className="w-5 h-5" />,
+      redemption: <Gift className="w-5 h-5" />,
     };
-    return icons[type] || '💰';
+    return icons[type] || <DollarSign className="w-5 h-5" />;
   };
 
   return (
-    <Card className="p-4">
-      <h3 className="text-lg font-bold mb-2">Transaction History</h3>
+    <Card className="p-3 mobile-card">
+      <h3 className="text-lg font-bold mb-2 vend-sans-dashboard">Transaction History</h3>
       {customer && (
-        <p className="text-sm text-muted-foreground mb-4">For: {customer.name}</p>
+        <p className="text-sm text-muted-foreground mb-3 vend-sans-dashboard">For: {customer.name}</p>
       )}
       {loading ? (
         <p className="text-muted-foreground text-center py-4">Loading...</p>
       ) : transactions.length === 0 ? (
         <p className="text-muted-foreground text-center py-4">No transactions yet</p>
       ) : (
-        <div className="space-y-2 max-h-96 overflow-y-auto">
+        <div className="space-y-2 max-h-60 overflow-y-auto">
           {transactions.map((tx) => (
-            <div key={tx.id} className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition">
-              <div className="flex items-center gap-3 flex-1">
-                <span className="text-xl">{getTypeIcon(tx.type)}</span>
-                <div className="flex-1">
-                  <p className={`font-semibold capitalize ${getTypeColor(tx.type)}`}>{tx.type}</p>
-                  {tx.description && <p className="text-xs text-muted-foreground">{tx.description}</p>}
+            <div key={tx.id} className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition touch-target">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <div className="text-lg">{getTypeIcon(tx.type)}</div>
+                <div className="flex-1 min-w-0">
+                  <p className={`font-semibold capitalize truncate ${getTypeColor(tx.type)}`}>{tx.type}</p>
+                  {tx.description && <p className="text-xs text-muted-foreground truncate">{tx.description}</p>}
                 </div>
               </div>
-              <div className="text-right">
-                <p className={`font-bold ${tx.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
+              <div className="text-right min-w-[80px]">
+                <p className={`font-bold truncate ${tx.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
                   ₦{tx.amount}
                 </p>
                 <p className="text-xs text-muted-foreground">{new Date(tx.created_at).toLocaleDateString()}</p>

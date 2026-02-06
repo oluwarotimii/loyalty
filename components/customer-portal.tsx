@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import LoadingScreen from './loading-screen';
 
 interface Customer {
   id: string;
@@ -26,8 +27,8 @@ interface Transaction {
 
 interface TierInfo {
   name: string;
-  min_points: number;
-  max_points: number;
+  min_amount: number;
+  max_amount: number;
   benefits: string[];
 }
 
@@ -86,14 +87,7 @@ export default function CustomerPortal() {
   }
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
-          <p className="text-muted-foreground">Loading...</p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen />;
   }
 
   if (!customer) {
@@ -119,60 +113,60 @@ export default function CustomerPortal() {
     : 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-50 to-rose-50">
+    <div className="min-h-screen bg-background">
       {/* Header */}
-      <header className="bg-white border-b sticky top-0">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
+      <header className="sticky-mobile bg-card border-b">
+        <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div>
-            <h1 className="text-2xl font-bold text-foreground">My Rewards</h1>
-            <p className="text-sm text-muted-foreground">{customer.name}</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground funnel-display-hero">My Rewards</h1>
+            <p className="text-sm text-muted-foreground vend-sans-admin">{customer.name}</p>
           </div>
-          <Button variant="outline" onClick={handleLogout}>
+          <Button variant="outline" onClick={handleLogout} className="mobile-button">
             Logout
           </Button>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="space-y-6">
+      <div className="container mx-auto px-4 py-4 sm:py-6">
+        <div className="space-y-mobile">
           {/* Amount Card */}
-          <Card className="p-6 bg-gradient-to-r from-purple-500 to-pink-500 text-white">
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold">Your Total Spending</h2>
-              <div className="text-5xl font-bold">₦{Number(customer.total_amount).toFixed(2)}</div>
-              <p className="text-purple-100">Total loyalty spending</p>
+          <Card className="p-4 sm:p-6 bg-gradient-to-r from-medium-blue to-dusty-denim text-white mobile-card">
+            <div className="space-y-3">
+              <h2 className="text-base sm:text-lg font-semibold vend-sans-dashboard">Your Total Spending</h2>
+              <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_amount).toFixed(2)}</div>
+              <p className="text-blue-100 vend-sans-dashboard">Total loyalty spending</p>
             </div>
           </Card>
 
           {/* Spending Card */}
-          <Card className="p-6 bg-gradient-to-r from-blue-500 to-indigo-500 text-white">
-            <div className="space-y-4">
-              <h2 className="text-lg font-semibold">Your Total Spending</h2>
-              <div className="text-5xl font-bold">₦{customer.total_spending.toFixed(2)}</div>
-              <p className="text-blue-100">Total spent with us</p>
+          <Card className="p-4 sm:p-6 bg-gradient-to-r from-dusty-denim to-apricot-cream text-white mobile-card">
+            <div className="space-y-3">
+              <h2 className="text-base sm:text-lg font-semibold vend-sans-dashboard">Your Total Spending</h2>
+              <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_spending).toFixed(2)}</div>
+              <p className="text-blue-100 vend-sans-dashboard">Total spent with us</p>
             </div>
           </Card>
 
           {/* Tier Info */}
-          <Card className="p-6">
-            <div className="space-y-4">
+          <Card className="p-4 sm:p-6 mobile-card">
+            <div className="space-y-3">
               <div>
-                <h3 className="text-lg font-semibold mb-2">Current Tier</h3>
-                <div className="flex items-center justify-between mb-4">
-                  <span className="text-2xl font-bold text-purple-600">
+                <h3 className="text-base sm:text-lg font-semibold mb-2 vend-sans-dashboard">Current Tier</h3>
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-2">
+                  <span className="text-xl sm:text-2xl font-bold text-primary">
                     {customer.current_tier}
                   </span>
                   {nextTier && (
-                    <span className="text-sm text-muted-foreground">
+                    <span className="text-xs sm:text-sm text-muted-foreground vend-sans-dashboard">
                       ₦{amountToNextTier} to {nextTier.name}
                     </span>
                   )}
                 </div>
 
                 {nextTier && (
-                  <div className="w-full bg-gray-200 rounded-full h-3">
+                  <div className="w-full bg-muted rounded-full h-2 sm:h-3">
                     <div
-                      className="bg-purple-600 h-3 rounded-full transition-all"
+                      className="bg-primary h-2 sm:h-3 rounded-full transition-all"
                       style={{ width: `${Math.min(progressPercent, 100)}%` }}
                     ></div>
                   </div>
@@ -181,11 +175,11 @@ export default function CustomerPortal() {
 
               {currentTier && currentTier.benefits.length > 0 && (
                 <div>
-                  <h4 className="font-semibold text-sm mb-2">Tier Benefits</h4>
+                  <h4 className="font-semibold text-xs sm:text-sm mb-2 vend-sans-dashboard">Tier Benefits</h4>
                   <ul className="space-y-1">
                     {currentTier.benefits.map((benefit, idx) => (
-                      <li key={idx} className="text-sm text-muted-foreground flex gap-2">
-                        <span className="text-purple-600">✓</span>
+                      <li key={idx} className="text-xs sm:text-sm text-muted-foreground flex gap-2 vend-sans-dashboard">
+                        <span className="text-primary">✓</span>
                         {benefit}
                       </li>
                     ))}
@@ -196,34 +190,34 @@ export default function CustomerPortal() {
           </Card>
 
           {/* Transactions */}
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">Recent Activity</h3>
+          <Card className="p-4 sm:p-6 mobile-card">
+            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 vend-sans-dashboard">Recent Activity</h3>
             {transactions.length === 0 ? (
-              <p className="text-muted-foreground text-sm">No transactions yet</p>
+              <p className="text-muted-foreground text-sm vend-sans-dashboard">No transactions yet</p>
             ) : (
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {transactions.slice(0, 10).map((trans) => (
                   <div
                     key={trans.id}
-                    className="flex justify-between items-center pb-3 border-b last:border-b-0 last:pb-0"
+                    className="flex justify-between items-center pb-2 border-b last:border-b-0 last:pb-0"
                   >
-                    <div>
-                      <p className="font-medium text-sm">{trans.transaction_type}</p>
-                      <p className="text-xs text-muted-foreground">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-medium text-xs sm:text-sm truncate vend-sans-dashboard">{trans.transaction_type}</p>
+                      <p className="text-xs text-muted-foreground truncate vend-sans-dashboard">
                         {trans.description}
                       </p>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right min-w-[80px] ml-2">
                       <p
-                        className={`font-semibold text-sm ${
+                        className={`font-semibold text-xs sm:text-sm ${
                           trans.points_amount > 0
                             ? 'text-green-600'
                             : 'text-red-600'
-                        }`}
+                        } vend-sans-dashboard`}
                       >
                         {trans.points_amount > 0 ? '+' : ''}{trans.points_amount}
                       </p>
-                      <p className="text-xs text-muted-foreground">
+                      <p className="text-xs text-muted-foreground vend-sans-dashboard">
                         {new Date(trans.transaction_date).toLocaleDateString()}
                       </p>
                     </div>
@@ -234,31 +228,31 @@ export default function CustomerPortal() {
           </Card>
 
           {/* All Tiers */}
-          <Card className="p-6">
-            <h3 className="text-lg font-semibold mb-4">All Tiers</h3>
-            <div className="space-y-3">
+          <Card className="p-4 sm:p-6 mobile-card">
+            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 vend-sans-dashboard">All Tiers</h3>
+            <div className="space-y-2 sm:space-y-3">
               {tiers.map((tier) => (
                 <div
                   key={tier.name}
-                  className={`p-4 rounded-lg border-2 ${
+                  className={`p-3 sm:p-4 rounded-lg border ${
                     tier.name === customer.current_tier
-                      ? 'border-purple-600 bg-purple-50'
-                      : 'border-gray-200'
+                      ? 'border-primary bg-primary/10'
+                      : 'border-border'
                   }`}
                 >
-                  <div className="flex justify-between items-start mb-2">
-                    <h4 className="font-semibold">{tier.name}</h4>
-                    <span className="text-sm text-muted-foreground">
+                  <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-2 gap-1">
+                    <h4 className="font-semibold text-sm vend-sans-dashboard">{tier.name}</h4>
+                    <span className="text-xs sm:text-sm text-muted-foreground vend-sans-dashboard">
                       ₦{tier.min_amount}+ spending
                     </span>
                   </div>
                   {tier.benefits.length > 0 && (
-                    <ul className="text-xs space-y-1 text-muted-foreground">
+                    <ul className="text-xs space-y-1 text-muted-foreground vend-sans-dashboard">
                       {tier.benefits.slice(0, 2).map((benefit, idx) => (
-                        <li key={idx}>• {benefit}</li>
+                        <li key={idx} className="truncate">• {benefit}</li>
                       ))}
                       {tier.benefits.length > 2 && (
-                        <li>• +{tier.benefits.length - 2} more</li>
+                        <li className="truncate">• +{tier.benefits.length - 2} more</li>
                       )}
                     </ul>
                   )}

@@ -37,16 +37,16 @@ export default function CustomerList({
   };
 
   return (
-    <Card className="p-4">
-      <h2 className="text-xl font-bold mb-4">Customers ({customers.length})</h2>
-      <div className="space-y-2 max-h-96 overflow-y-auto">
+    <Card className="p-3 mobile-card">
+      <h2 className="text-lg font-bold mb-3 vend-sans-dashboard">Customers ({customers.length})</h2>
+      <div className="space-y-2 max-h-60 overflow-y-auto">
         {customers.length === 0 ? (
           <p className="text-muted-foreground text-sm py-4 text-center">No customers yet</p>
         ) : (
           customers.map((customer) => (
             <div
               key={customer.id}
-              className={`p-3 rounded-lg border cursor-pointer transition ${
+              className={`p-3 rounded-lg border cursor-pointer transition touch-target ${
                 selectedCustomer?.id === customer.id
                   ? 'bg-accent border-accent text-accent-foreground'
                   : 'border-border hover:bg-accent/50'
@@ -54,11 +54,11 @@ export default function CustomerList({
             >
               <div onClick={() => onSelectCustomer(customer)}>
                 <div className="flex justify-between items-start">
-                  <div>
-                    <p className="font-semibold">{customer.name}</p>
-                    <p className="text-xs text-muted-foreground">{customer.email}</p>
+                  <div className="flex-1 min-w-0">
+                    <p className="font-semibold truncate">{customer.name}</p>
+                    <p className="text-xs text-muted-foreground truncate">{customer.email}</p>
                   </div>
-                  <span className="text-sm font-bold">₦{Number(customer.total_spending).toFixed(2)}</span>
+                  <span className="text-sm font-bold ml-2">₦{Number(customer.total_spending).toFixed(2)}</span>
                 </div>
               </div>
               {selectedCustomer?.id === customer.id && (
@@ -66,7 +66,7 @@ export default function CustomerList({
                   variant="destructive"
                   size="sm"
                   onClick={() => handleDelete(customer.id)}
-                  className="mt-2 w-full"
+                  className="mt-2 w-full mobile-button"
                 >
                   Delete
                 </Button>

@@ -3,6 +3,7 @@
 import { Card } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
+import { Clock, Cake, User, Settings } from 'lucide-react';
 
 export default function SettingsPanel() {
   const settings = [
@@ -13,10 +14,10 @@ export default function SettingsPanel() {
   ];
 
   const policies = [
-    { title: 'Spending Milestones', value: 'Automatic tracking', icon: '⏰' },
-    { title: 'Birthday Bonus', value: '10% discount', icon: '🎂' },
-    { title: 'Referral Reward', value: '5% commission', icon: '👥' },
-    { title: 'Auto Tier Update', value: 'Daily at midnight', icon: '⚙️' },
+    { title: 'Spending Milestones', value: 'Automatic tracking', icon: <Clock className="w-6 h-6" /> },
+    { title: 'Birthday Bonus', value: '10% discount', icon: <Cake className="w-6 h-6" /> },
+    { title: 'Referral Reward', value: '5% commission', icon: <User className="w-6 h-6" /> },
+    { title: 'Auto Tier Update', value: 'Daily at midnight', icon: <Settings className="w-6 h-6" /> },
   ];
 
   return (
@@ -43,11 +44,11 @@ export default function SettingsPanel() {
       </Card>
 
       <Card className="p-6">
-        <h2 className="text-xl font-bold mb-4">Loyalty Policies</h2>
+        <h2 className="text-xl font-bold mb-4 vend-sans-dashboard">Loyalty Policies</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {policies.map((policy, i) => (
             <div key={i} className="p-4 border border-border rounded-lg flex items-start gap-3">
-              <span className="text-2xl">{policy.icon}</span>
+              <div className="text-foreground">{policy.icon}</div>
               <div>
                 <p className="font-semibold">{policy.title}</p>
                 <p className="text-sm text-muted-foreground">{policy.value}</p>

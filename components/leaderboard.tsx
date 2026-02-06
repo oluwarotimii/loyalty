@@ -20,25 +20,25 @@ export default function Leaderboard({ customers }: LeaderboardProps) {
   const sorted = [...customers].sort((a, b) => b.total_spending - a.total_spending);
 
   return (
-    <Card className="p-4">
-      <h2 className="text-xl font-bold mb-4">Top Customers</h2>
+    <Card className="p-3 mobile-card">
+      <h2 className="text-lg font-bold mb-3 vend-sans-dashboard">Top Customers</h2>
       <div className="space-y-2">
         {sorted.length === 0 ? (
-          <p className="text-muted-foreground text-center py-8">No customers yet</p>
+          <p className="text-muted-foreground text-center py-6">No customers yet</p>
         ) : (
           sorted.map((customer, index) => (
-            <div key={customer.id} className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition">
-              <div className="flex items-center gap-3">
-                <div className="w-8 h-8 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-sm">
+            <div key={customer.id} className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition touch-target">
+              <div className="flex items-center gap-2 flex-1 min-w-0">
+                <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs sm:text-sm">
                   {index + 1}
                 </div>
-                <div>
-                  <p className="font-semibold">{customer.name}</p>
-                  <p className="text-xs text-muted-foreground">{customer.email}</p>
+                <div className="min-w-0 flex-1">
+                  <p className="font-semibold truncate">{customer.name}</p>
+                  <p className="text-xs text-muted-foreground truncate">{customer.email}</p>
                 </div>
               </div>
-              <div className="text-right">
-                <p className="font-bold text-lg">₦{Number(customer.total_spending).toFixed(2)}</p>
+              <div className="text-right min-w-[80px] ml-2">
+                <p className="font-bold">₦{Number(customer.total_spending).toFixed(2)}</p>
                 <p className="text-xs text-muted-foreground">spent</p>
               </div>
             </div>

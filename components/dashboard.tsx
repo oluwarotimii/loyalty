@@ -50,6 +50,7 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
   console.log('Dashboard component received initial data:', { initialCustomers, initialTiers });
   const [customers, setCustomers] = useState<Customer[]>(initialCustomers);
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [activeTab, setActiveTab] = useState('customers');
 
   const handleCustomerAdded = (newCustomer: Customer) => {
     setCustomers([newCustomer, ...customers]);
@@ -69,26 +70,129 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
 
   return (
     <div className="flex flex-col min-h-screen">
-      <header className="border-b border-border bg-card px-6 py-4">
-        <h1 className="text-3xl font-bold">Loyalty Management Platform</h1>
-        <p className="text-muted-foreground mt-1">Manage customers, spending, and loyalty tiers</p>
+      <header className="sticky-mobile border-b border-border bg-card px-4 py-3 sm:px-6 sm:py-4">
+        <div className="header-content flex items-center justify-between">
+          <div>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold funnel-display-title">Loyalty Management Platform</h1>
+            <p className="text-muted-foreground text-sm mt-1 vend-sans-dashboard">Manage customers, spending, and loyalty tiers</p>
+          </div>
+        </div>
       </header>
 
-      <div className="flex-1 px-6 py-6 space-y-6">
+      <div className="flex-1 px-4 py-4 sm:px-6 sm:py-6 space-y-4 sm:space-y-6">
         <StatsOverview customers={customers} />
-        <Tabs defaultValue="customers" className="space-y-4">
-          <TabsList>
-            <TabsTrigger value="customers">Customers</TabsTrigger>
-            <TabsTrigger value="transactions">Transactions</TabsTrigger>
-            <TabsTrigger value="tiers">Tiers & Benefits</TabsTrigger>
-            <TabsTrigger value="leaderboard">Leaderboard</TabsTrigger>
-            <TabsTrigger value="notifications">Notifications</TabsTrigger>
-            <TabsTrigger value="settings">Settings</TabsTrigger>
-          </TabsList>
+        {/* Desktop Tabs */}
+        <div className="hidden sm:block">
+          <Tabs defaultValue="customers" className="tabs-container space-y-4">
+            <TabsList className="w-full overflow-x-auto">
+              <TabsTrigger value="customers" className="mobile-tab whitespace-nowrap">Customers</TabsTrigger>
+              <TabsTrigger value="transactions" className="mobile-tab whitespace-nowrap">Transactions</TabsTrigger>
+              <TabsTrigger value="tiers" className="mobile-tab whitespace-nowrap">Tiers & Benefits</TabsTrigger>
+              <TabsTrigger value="leaderboard" className="mobile-tab whitespace-nowrap">Leaderboard</TabsTrigger>
+              <TabsTrigger value="notifications" className="mobile-tab whitespace-nowrap">Notifications</TabsTrigger>
+              <TabsTrigger value="settings" className="mobile-tab whitespace-nowrap">Settings</TabsTrigger>
+            </TabsList>
 
-          <TabsContent value="customers" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
+            <TabsContent value="customers" className="space-y-4">
+              <div className="grid grid-cols-1 gap-4">
+                <div className="customer-list-container">
+                  <CustomerList
+                    customers={customers}
+                    selectedCustomer={selectedCustomer}
+                    onSelectCustomer={setSelectedCustomer}
+                    onCustomerDeleted={handleCustomerDeleted}
+                  />
+                </div>
+                <div className="space-y-4">
+                  <CustomerForm onCustomerAdded={handleCustomerAdded} />
+                  {selectedCustomer && (
+                    <div className="bg-card border border-border rounded-lg p-4 mobile-card">
+                      <h3 className="font-semibold mb-3 vend-sans-admin">Customer Details</h3>
+                      <div className="space-y-2 text-sm">
+                        <p>
+                          <span className="text-muted-foreground">Name:</span> {selectedCustomer.name}
+                        </p>
+                        <p>
+                          <span className="text-muted-foreground">Email:</span> {selectedCustomer.email}
+                        </p>
+                        {selectedCustomer.phone && (
+                          <p>
+                            <span className="text-muted-foreground">Phone:</span> {selectedCustomer.phone}
+                          </p>
+                        )}
+                        <p>
+                          <span className="text-muted-foreground">Total Spending:</span>
+                          <span className="font-semibold ml-1">₦{Number(selectedCustomer.total_spending).toFixed(2)}</span>
+                        </p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+            </TabsContent>
+
+            <TabsContent value="transactions" className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 transaction-panel-grid">
+                <div>
+                  <TransactionPanel
+                    customers={customers}
+                    selectedCustomer={selectedCustomer}
+                    onCustomerUpdated={handleCustomerUpdated}
+                  />
+                </div>
+                {selectedCustomer && (
+                  <div className="transaction-history-container">
+                    <TransactionHistory customerId={selectedCustomer.id} />
+                  </div>
+                )}
+              </div>
+            </TabsContent>
+
+            <TabsContent value="tiers" className="space-y-4">
+              <TierEditor initialTiers={initialTiers} />
+            </TabsContent>
+
+            <TabsContent value="leaderboard" className="space-y-4">
+              <Leaderboard customers={customers} />
+            </TabsContent>
+
+            <TabsContent value="notifications" className="space-y-4">
+              <NotificationPanel customers={customers} />
+            </TabsContent>
+
+            <TabsContent value="settings" className="space-y-4">
+              <SettingsPanel />
+            </TabsContent>
+          </Tabs>
+        </div>
+
+        {/* Mobile Dropdown */}
+        <div className="sm:hidden">
+          <div className="mb-4">
+            <select
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value)}
+              className="w-full p-3 border border-input rounded-lg bg-background text-foreground vend-sans-admin mobile-input"
+            >
+              <option value="dashboard">Dashboard</option>
+              <option value="customers">Customers</option>
+              <option value="transactions">Transactions</option>
+              <option value="tiers">Tiers & Benefits</option>
+              <option value="leaderboard">Leaderboard</option>
+              <option value="notifications">Notifications</option>
+              <option value="settings">Settings</option>
+            </select>
+          </div>
+
+          {activeTab === 'dashboard' && (
+            <div className="space-y-4">
+              <StatsOverview customers={customers} />
+            </div>
+          )}
+
+          {activeTab === 'customers' && (
+            <div className="space-y-4">
+              <div className="customer-list-container">
                 <CustomerList
                   customers={customers}
                   selectedCustomer={selectedCustomer}
@@ -99,8 +203,8 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
               <div className="space-y-4">
                 <CustomerForm onCustomerAdded={handleCustomerAdded} />
                 {selectedCustomer && (
-                  <div className="bg-card border border-border rounded-lg p-4">
-                    <h3 className="font-semibold mb-3">Customer Details</h3>
+                  <div className="bg-card border border-border rounded-lg p-4 mobile-card">
+                    <h3 className="font-semibold mb-3 vend-sans-dashboard">Customer Details</h3>
                     <div className="space-y-2 text-sm">
                       <p>
                         <span className="text-muted-foreground">Name:</span> {selectedCustomer.name}
@@ -122,41 +226,51 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
                 )}
               </div>
             </div>
-          </TabsContent>
+          )}
 
-          <TabsContent value="transactions" className="space-y-4">
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <div>
-                <TransactionPanel
-                  customers={customers}
-                  selectedCustomer={selectedCustomer}
-                  onCustomerUpdated={handleCustomerUpdated}
-                />
-              </div>
-              {selectedCustomer && (
+          {activeTab === 'transactions' && (
+            <div className="space-y-4">
+              <div className="grid grid-cols-1 gap-4 transaction-panel-grid">
                 <div>
-                  <TransactionHistory customerId={selectedCustomer.id} />
+                  <TransactionPanel
+                    customers={customers}
+                    selectedCustomer={selectedCustomer}
+                    onCustomerUpdated={handleCustomerUpdated}
+                  />
                 </div>
-              )}
+                {selectedCustomer && (
+                  <div className="transaction-history-container">
+                    <TransactionHistory customerId={selectedCustomer.id} />
+                  </div>
+                )}
+              </div>
             </div>
-          </TabsContent>
+          )}
 
-          <TabsContent value="tiers" className="space-y-4">
-            <TierEditor initialTiers={initialTiers} />
-          </TabsContent>
+          {activeTab === 'tiers' && (
+            <div className="space-y-4">
+              <TierEditor initialTiers={initialTiers} />
+            </div>
+          )}
 
-          <TabsContent value="leaderboard" className="space-y-4">
-            <Leaderboard customers={customers} />
-          </TabsContent>
+          {activeTab === 'leaderboard' && (
+            <div className="space-y-4">
+              <Leaderboard customers={customers} />
+            </div>
+          )}
 
-          <TabsContent value="notifications" className="space-y-4">
-            <NotificationPanel customers={customers} />
-          </TabsContent>
+          {activeTab === 'notifications' && (
+            <div className="space-y-4">
+              <NotificationPanel customers={customers} />
+            </div>
+          )}
 
-          <TabsContent value="settings" className="space-y-4">
-            <SettingsPanel />
-          </TabsContent>
-        </Tabs>
+          {activeTab === 'settings' && (
+            <div className="space-y-4">
+              <SettingsPanel />
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );

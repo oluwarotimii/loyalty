@@ -1,6 +1,7 @@
 'use client';
 
 import { Card } from '@/components/ui/card';
+import { Users, DollarSign, TrendingUp, Crown } from 'lucide-react';
 
 interface Customer {
   id: string;
@@ -23,22 +24,20 @@ export default function StatsOverview({ customers }: StatsOverviewProps) {
   const topCustomer = customers.length > 0 ? customers.reduce((max, c) => (Number(c.total_spending) > Number(max.total_spending) ? c : max)) : null;
 
   const stats = [
-    { label: 'Total Customers', value: totalCustomers, icon: '👥' },
-    // { label: 'Total Spending', value: `₦${totalSpending.toLocaleString()}`, icon: '💰' },
-    // { label: 'Average Spending', value: `₦${avgSpending}`, icon: '📊' },
-    { label: 'Top Customer', value: topCustomer?.name || 'N/A', icon: '🏆' },
+    { label: 'Total Customers', value: totalCustomers, icon: <Users className="w-6 h-6 sm:w-8 sm:h-8" /> },
+    { label: 'Top Customer', value: topCustomer?.name || 'N/A', icon: <Crown className="w-6 h-6 sm:w-8 sm:h-8" /> },
   ];
 
   return (
-    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 stats-grid">
       {stats.map((stat, i) => (
-        <Card key={i} className="p-4">
+        <Card key={i} className="p-3 mobile-card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-muted-foreground text-sm">{stat.label}</p>
-              <p className="text-2xl font-bold mt-1">{stat.value}</p>
+              <p className="text-muted-foreground text-xs sm:text-sm vend-sans-admin">{stat.label}</p>
+              <p className="text-xl sm:text-2xl font-normal mt-1 vend-sans-admin">{stat.value}</p>
             </div>
-            <span className="text-3xl">{stat.icon}</span>
+            <div className="text-foreground">{stat.icon}</div>
           </div>
         </Card>
       ))}

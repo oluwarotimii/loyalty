@@ -51,21 +51,21 @@ export default function CustomerLoginPage() {
   }
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-pink-50 to-rose-50 px-4">
-      <Card className="w-full max-w-md p-8 shadow-lg">
-        <div className="space-y-6">
+    <div className="min-h-screen flex items-center justify-center bg-background px-4">
+      <Card className="w-full max-w-md p-6 sm:p-8 mobile-card">
+        <div className="space-y-mobile">
           <div className="text-center">
-            <h1 className="text-3xl font-bold text-foreground mb-2">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 funnel-display-title">
               My Rewards
             </h1>
-            <p className="text-muted-foreground">
+            <p className="text-muted-foreground text-sm vend-sans-dashboard">
               Check your loyalty spending and benefits
             </p>
           </div>
 
-          <form onSubmit={handleLogin} className="space-y-4">
+          <form onSubmit={handleLogin} className="space-y-3">
             <div className="space-y-2">
-              <label htmlFor="phone" className="text-sm font-medium">
+              <label htmlFor="phone" className="text-sm font-medium text-label">
                 Phone Number
               </label>
               <Input
@@ -77,14 +77,15 @@ export default function CustomerLoginPage() {
                 disabled={loading}
                 maxLength={12}
                 required
+                className="mobile-input"
               />
-              <p className="text-xs text-muted-foreground">
+              <p className="text-xs text-muted-foreground vend-sans-admin">
                 Enter your phone number to access your account
               </p>
             </div>
 
             {error && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-md text-red-700 text-sm">
+              <div className="p-3 bg-destructive/10 border border-destructive/30 rounded-md text-destructive text-sm">
                 {error}
               </div>
             )}
@@ -92,17 +93,17 @@ export default function CustomerLoginPage() {
             <Button
               type="submit"
               disabled={loading || phoneNumber.replace(/\D/g, '').length !== 10}
-              className="w-full"
+              className="w-full mobile-button btn-hover"
             >
               {loading ? 'Logging in...' : 'View My Rewards'}
             </Button>
           </form>
 
-          <div className="pt-4 border-t">
-            <p className="text-center text-sm text-muted-foreground">
+          <div className="pt-4 border-t border-border">
+            <p className="text-center text-sm text-muted-foreground vend-sans-dashboard">
               <Link
                 href="/admin/login"
-                className="text-blue-600 hover:underline font-medium"
+                className="text-primary hover:underline font-medium"
               >
                 Admin Login
               </Link>

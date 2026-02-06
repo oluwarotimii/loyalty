@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
+import { ShoppingCart, User, Star, Gift, DollarSign } from 'lucide-react';
 
 interface Customer {
   id: string;
@@ -75,13 +76,23 @@ export default function TransactionPanel({
     }
   };
 
+  const getIconForType = (type: string) => {
+    const icons: { [key: string]: JSX.Element } = {
+      purchase: <ShoppingCart className="w-5 h-5" />,
+      referral: <User className="w-5 h-5" />,
+      bonus: <Star className="w-5 h-5" />,
+      redemption: <Gift className="w-5 h-5" />,
+    };
+    return icons[type] || <DollarSign className="w-5 h-5" />;
+  };
+
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-      <Card className="p-4">
-        <h3 className="text-lg font-bold mb-4">Add Transaction</h3>
-        <form onSubmit={handleSubmit} className="space-y-4">
+    <div className="grid grid-cols-1 gap-4 transaction-panel-grid">
+      <Card className="p-3 mobile-card">
+        <h3 className="text-lg font-bold mb-3 vend-sans-dashboard">Add Transaction</h3>
+        <form onSubmit={handleSubmit} className="space-y-3">
           <div>
-            <label className="text-sm font-medium">Customer</label>
+            <label className="text-sm font-medium text-label">Customer</label>
             <Select value={formData.customerId} onValueChange={(value) => setFormData({ ...formData, customerId: value })}>
               <SelectTrigger>
                 <SelectValue placeholder="Select customer" />
@@ -97,7 +108,7 @@ export default function TransactionPanel({
           </div>
 
           <div>
-            <label className="text-sm font-medium">Type</label>
+            <label className="text-sm font-medium text-label">Type</label>
             <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
               <SelectTrigger>
                 <SelectValue />
@@ -112,35 +123,37 @@ export default function TransactionPanel({
           </div>
 
           <div>
-            <label className="text-sm font-medium">Amount</label>
+            <label className="text-sm font-medium text-label">Amount</label>
             <Input
               type="number"
               placeholder="0"
               value={formData.amount}
               onChange={(e) => setFormData({ ...formData, amount: e.target.value })}
               required
+              className="mobile-input"
             />
           </div>
 
           <div>
-            <label className="text-sm font-medium">Description</label>
+            <label className="text-sm font-medium text-label">Description</label>
             <Input
               placeholder="Optional"
               value={formData.description}
               onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+              className="mobile-input"
             />
           </div>
 
-          <Button type="submit" disabled={loading || !formData.customerId} className="w-full">
+          <Button type="submit" disabled={loading || !formData.customerId} className="w-full mobile-button">
             {loading ? 'Processing...' : 'Add Transaction'}
           </Button>
         </form>
       </Card>
 
-      {/* {selectedCustomer && (
-        <Card className="p-4">
-          <h3 className="text-lg font-bold mb-4">Quick Add Amount</h3>
-          <div className="space-y-3">
+      {selectedCustomer && (
+        <Card className="p-3 mobile-card">
+          <h3 className="text-lg font-bold mb-3 vend-sans-dashboard">Quick Add Amount</h3>
+          <div className="space-y-2">
             {[10, 50, 100, 500].map((amount) => (
               <Button
                 key={amount}
@@ -153,14 +166,15 @@ export default function TransactionPanel({
                     description: 'Quick bonus',
                   });
                 }}
-                className="w-full"
+                className="w-full mobile-button flex items-center justify-center gap-2"
               >
+                {getIconForType('bonus')}
                 Add ₦{amount}
               </Button>
             ))}
           </div>
         </Card>
-      )} */}
+      )}
     </div>
   );
 }
