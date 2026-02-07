@@ -12,11 +12,12 @@ interface Customer {
   total_spending?: number;
   total_amount?: number;
   tier_id?: string;
+  current_tier?: string;
   created_at: string;
 }
 
 interface Tier {
-  id?: string;
+  id: string;
   name: string;
   min_amount: number;
   max_amount?: number;
@@ -29,7 +30,7 @@ interface Tier {
     id?: string;
     title?: string;
     description?: string;
-  }>;
+  } | string>;
 }
 
 interface LeaderboardProps {
@@ -37,18 +38,17 @@ interface LeaderboardProps {
   initialTiers: Tier[];
 }
 
-// Function to determine which tier a customer belongs to based on their spending
-const getCustomerTier = (customerSpending: number, tiers: Tier[]) => {
-  // Sort tiers by min_amount in descending order to find the highest qualifying tier
-  const sortedTiers = [...tiers].sort((a, b) => (b.min_amount || 0) - (a.min_amount || 0));
-  
-  for (const tier of sortedTiers) {
-    if (customerSpending >= (tier.min_amount || 0) && tier.is_active !== false) {
-      return tier;
+// Function to determine which tier a customer belongs to based on their stored tier_id
+const getCustomerTier = (customer: Customer, tiers: Tier[]) => {
+  // If customer has a stored tier_id, use that
+  if (customer.tier_id) {
+    const storedTier = tiers.find(tier => tier.id === customer.tier_id);
+    if (storedTier) {
+      return storedTier;
     }
   }
-  
-  // Return null if no tier is qualified
+
+  // Otherwise, return null
   return null;
 };
 
@@ -68,7 +68,7 @@ export default function Leaderboard({ customers, initialTiers }: LeaderboardProp
       const selectedTier = tiers.find(tier => tier.id === selectedTierId || tier.name === selectedTierId);
       if (selectedTier) {
         result = customers.filter(customer => {
-          const customerTier = getCustomerTier(customer.total_spending || customer.total_amount || 0, tiers);
+          const customerTier = getCustomerTier(customer, tiers);
           return customerTier && (customerTier.id === selectedTierId || customerTier.name === selectedTierId);
         });
       }
@@ -111,11 +111,11 @@ export default function Leaderboard({ customers, initialTiers }: LeaderboardProp
             </p>
           ) : (
             filteredCustomers.map((customer, index) => {
-              const customerTier = getCustomerTier(customer.total_spending || customer.total_amount || 0, tiers);
+              const customerTier = getCustomerTier(customer, tiers);
               
               return (
-                <div 
-                  key={customer.id} 
+                <div
+                  key={customer.id}
                   className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition touch-target"
                 >
                   <div className="flex items-center gap-2 flex-1 min-w-0">
@@ -126,9 +126,12 @@ export default function Leaderboard({ customers, initialTiers }: LeaderboardProp
                       <p className="font-semibold truncate">{customer.name}</p>
                       <div className="flex items-center gap-2">
                         <p className="text-xs text-muted-foreground truncate">{customer.email}</p>
-                        {customerTier && (
+                        {customer.phone && (
+                          <p className="text-xs text-muted-foreground truncate">({customer.phone})</p>
+                        )}
+                        {(customerTier || customer.current_tier) && (
                           <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
-                            {customerTier.name}
+                            {customer.current_tier || customerTier?.name}
                           </span>
                         )}
                       </div>

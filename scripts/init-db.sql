@@ -1,8 +1,7 @@
 -- Create customers table
 CREATE TABLE IF NOT EXISTS customers (
   id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  first_name TEXT NOT NULL,
-  last_name TEXT NOT NULL,
+  name  TEXT NOT NULL,
   phone TEXT UNIQUE NOT NULL,
   email TEXT,
   date_of_birth DATE,

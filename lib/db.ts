@@ -4,68 +4,138 @@ import { sql } from '@vercel/postgres';
 export const pool = sql;
 
 export async function getCustomers() {
-  // Get customers with their total spending calculated from transactions
+  // Get customers with their total spending and current tier
   const result = await sql`
-    SELECT 
-      c.id, 
-      c.name, 
-      c.phone, 
-      c.email, 
+    SELECT
+      c.id,
+      c.name,
+      c.phone,
+      c.email,
+      c.date_of_birth,
+      c.address,
       c.created_at,
-      COALESCE(SUM(t.amount), 0) AS total_spending
+      COALESCE(ct.total_spend, 0) AS total_spending,
+      ct.tier_id,
+      t.name AS current_tier
     FROM customers c
-    LEFT JOIN transactions t ON c.id = t.customer_id
-    GROUP BY c.id, c.name, c.phone, c.email, c.created_at
+    LEFT JOIN customer_tiers ct ON c.id = ct.customer_id
+      AND ct.period_start <= CURRENT_DATE
+      AND ct.period_end >= CURRENT_DATE
+    LEFT JOIN tiers t ON ct.tier_id = t.id
     ORDER BY c.created_at DESC
   `;
-  
-  return result.rows.map(customer => ({
-    ...customer,
-    tier_id: null // Default value since there's no tier_id column in customers table
-  }));
+
+  return result.rows;
 }
 
 export async function getCustomerById(id: string) {
   const result = await sql`
-    SELECT 
-      c.id, 
-      c.name, 
-      c.phone, 
-      c.email, 
+    SELECT
+      c.id,
+      c.name,
+      c.phone,
+      c.email,
+      c.date_of_birth,
+      c.address,
       c.created_at,
-      COALESCE(SUM(t.amount), 0) AS total_spending
+      COALESCE(ct.total_spend, 0) AS total_spending,
+      ct.tier_id,
+      t.name AS current_tier
     FROM customers c
-    LEFT JOIN transactions t ON c.id = t.customer_id
+    LEFT JOIN customer_tiers ct ON c.id = ct.customer_id
+      AND ct.period_start <= CURRENT_DATE
+      AND ct.period_end >= CURRENT_DATE
+    LEFT JOIN tiers t ON ct.tier_id = t.id
     WHERE c.id = ${id}
-    GROUP BY c.id, c.name, c.phone, c.email, c.created_at
   `;
-  
+
   const customer = result.rows[0];
   if (!customer) return null;
 
-  return {
-    ...customer,
-    tier_id: null // Default value since there's no tier_id column in customers table
-  };
+  return customer;
 }
 
-export async function createCustomer(name: string, email: string, phone: string) {
-  const result = await sql`
-    INSERT INTO customers (name, phone, email)
-    VALUES (${name}, ${phone}, ${email || null})
-    RETURNING id, name, phone, email, created_at
-  `;
+export async function createCustomer(name: string, email: string, phone: string, initialSpending: number = 0) {
+  const client = await sql.connect();
+  try {
+    await client.query('BEGIN');
 
-  // Format the result to match frontend expectations
-  const customer = result.rows[0];
-  return {
-    ...customer,
-    total_spending: 0, // New customer has no transactions yet
-    tier_id: null // Default value since there's no tier_id column in customers table
-  };
+    // Insert the customer
+    const customerResult = await client.query(`
+      INSERT INTO customers (name, phone, email)
+      VALUES ($1, $2, $3)
+      RETURNING id, name, phone, email, created_at
+    `, [name, phone, email || null]);
+
+    const customer = customerResult.rows[0];
+
+    // Get the highest tier the customer qualifies for based on initial spending
+    const tiers = await client.query(`
+      SELECT id, min_spend
+      FROM tiers
+      WHERE is_active = true
+      ORDER BY min_spend DESC
+    `);
+
+    let assignedTierId = '';
+    for (const tier of tiers.rows) {
+      if (initialSpending >= Number(tier.min_spend)) {
+        assignedTierId = tier.id;
+        break;
+      }
+    }
+
+    // If no tier was found, assign the lowest tier
+    if (!assignedTierId) {
+      const lowestTier = await client.query(`
+        SELECT id
+        FROM tiers
+        WHERE is_active = true
+        ORDER BY min_spend ASC
+        LIMIT 1
+      `);
+      assignedTierId = lowestTier.rows[0]?.id || '';
+    }
+
+    // If a tier was found, create a customer_tier record
+    if (assignedTierId) {
+      const periodStart = new Date();
+      const periodEnd = new Date();
+      periodEnd.setFullYear(periodStart.getFullYear() + 1); // Annual evaluation period
+
+      await client.query(`
+        INSERT INTO customer_tiers (customer_id, tier_id, total_spend, period_start, period_end)
+        VALUES ($1, $2, $3, $4, $5)
+      `, [customer.id, assignedTierId, initialSpending, periodStart, periodEnd]);
+    }
+
+    // If initial spending is greater than 0, create a transaction record
+    if (initialSpending > 0) {
+      await client.query(`
+        INSERT INTO transactions (customer_id, amount, reference)
+        VALUES ($1, $2, $3)
+      `, [customer.id, initialSpending, 'Initial spending from import']);
+    }
+
+    await client.query('COMMIT');
+
+    // Return the full customer data with tier information
+    const fullCustomer = await getCustomerById(customer.id);
+    return fullCustomer;
+  } catch (error) {
+    await client.query('ROLLBACK');
+    throw error;
+  }
 }
 
-export async function updateCustomer(id: string, data: { name?: string; email?: string; phone?: string; total_spending?: number }) {
+export async function updateCustomer(id: string, data: {
+  name?: string;
+  email?: string;
+  phone?: string;
+  total_spending?: number;
+  date_of_birth?: string;
+  address?: string;
+}) {
   const updates: string[] = [];
   const values: unknown[] = [];
   let paramCount = 1;
@@ -82,14 +152,22 @@ export async function updateCustomer(id: string, data: { name?: string; email?: 
     updates.push(`phone = $${paramCount++}`);
     values.push(data.phone);
   }
+  if (data.date_of_birth !== undefined) {
+    updates.push(`date_of_birth = $${paramCount++}`);
+    values.push(data.date_of_birth);
+  }
+  if (data.address !== undefined) {
+    updates.push(`address = $${paramCount++}`);
+    values.push(data.address);
+  }
 
   if (updates.length === 0) return null;
 
   values.push(id);
-  const query = `UPDATE customers SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING id, name, phone, email, created_at`;
+  const query = `UPDATE customers SET ${updates.join(', ')} WHERE id = $${paramCount} RETURNING id`;
   const result = await sql.query(query, values);
 
-  // Get the updated customer with their total spending
+  // Get the updated customer with their total spending and tier information
   const updatedCustomer = await getCustomerById(id);
   return updatedCustomer;
 }
@@ -120,13 +198,13 @@ export async function createTransaction(customerId: string, type: string, amount
       [customerId, amount, description || '']
     );
 
-    // Update customer tier based on total spending
+    // Calculate new total spending for the customer
     const totalSpending = await client.query(`
       SELECT COALESCE(SUM(amount), 0) as total_spending
       FROM transactions
       WHERE customer_id = $1
     `, [customerId]);
-    
+
     // Get the highest tier the customer qualifies for based on spending
     const tiers = await client.query(`
       SELECT id, min_spend
@@ -134,15 +212,15 @@ export async function createTransaction(customerId: string, type: string, amount
       WHERE is_active = true
       ORDER BY min_spend DESC
     `);
-    
+
     let newTierId = '';
     for (const tier of tiers.rows) {
-      if (totalSpending.rows[0].total_spending >= tier.min_spend) {
+      if (Number(totalSpending.rows[0].total_spending) >= Number(tier.min_spend)) {
         newTierId = tier.id;
         break;
       }
     }
-    
+
     // If no tier was found, assign the lowest tier
     if (!newTierId) {
       const lowestTier = await client.query(`
@@ -154,15 +232,48 @@ export async function createTransaction(customerId: string, type: string, amount
       `);
       newTierId = lowestTier.rows[0]?.id || '';
     }
-    
+
     if (newTierId) {
-      // Note: The customers table doesn't have a tier_id column in the original schema
-      // For now, we'll just complete the transaction without updating tier
+      // Update or create customer_tier record
+      const periodStart = new Date();
+      const periodEnd = new Date();
+      periodEnd.setFullYear(periodStart.getFullYear() + 1); // Annual evaluation period
+
+      // Check if there's an existing active customer_tier record
+      const existingRecord = await client.query(`
+        SELECT id FROM customer_tiers
+        WHERE customer_id = $1
+        AND period_start <= $2
+        AND period_end >= $2
+      `, [customerId, new Date()]);
+
+      if (existingRecord.rows.length > 0) {
+        // Update existing record
+        await client.query(`
+          UPDATE customer_tiers
+          SET tier_id = $1, total_spend = $2, last_evaluated_at = $3
+          WHERE customer_id = $4
+          AND period_start <= $5
+          AND period_end >= $5
+        `, [newTierId, Number(totalSpending.rows[0].total_spending), new Date(), customerId, new Date()]);
+      } else {
+        // Create new record
+        await client.query(`
+          INSERT INTO customer_tiers (customer_id, tier_id, total_spend, period_start, period_end, last_evaluated_at)
+          VALUES ($1, $2, $3, $4, $5, $6)
+        `, [customerId, newTierId, Number(totalSpending.rows[0].total_spending), periodStart, periodEnd, new Date()]);
+      }
     }
-    
+
     await client.query('COMMIT');
 
-    return result.rows[0];
+    // Return the transaction along with updated customer info
+    const updatedCustomer = await getCustomerById(customerId);
+    
+    return {
+      ...result.rows[0],
+      customer_info: updatedCustomer
+    };
   } catch (error) {
     await client.query('ROLLBACK');
     throw error;

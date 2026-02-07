@@ -16,20 +16,20 @@ export async function GET(request: Request) {
       return Response.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    // Calculate total spending for the customer
-    const spendingResult = await pool.query(
-      `SELECT COALESCE(SUM(amount), 0) as total_spending
-       FROM transactions
-       WHERE customer_id = $1`,
-      [customer.customer_id]
-    );
-    
-    // Fetch full customer data
+    // Fetch full customer data with tier information
+    // Get the most recently assigned tier for the customer within the current period
     const result = await pool.query(
       `SELECT
-        id, name, email, phone
-       FROM customers
-       WHERE id = $1`,
+        c.id, c.name, c.email, c.phone, c.date_of_birth, c.address, c.created_at,
+        ct.tier_id,
+        t.name as current_tier,
+        COALESCE(ct.total_spend, 0) as total_spending
+       FROM customers c
+       LEFT JOIN customer_tiers ct ON c.id = ct.customer_id
+         AND ct.period_start <= CURRENT_DATE
+         AND ct.period_end >= CURRENT_DATE
+       LEFT JOIN tiers t ON ct.tier_id = t.id
+       WHERE c.id = $1`,
       [customer.customer_id]
     );
 
@@ -38,13 +38,13 @@ export async function GET(request: Request) {
     }
 
     const customerData = result.rows[0];
-    const totalSpending = parseFloat(spendingResult.rows[0]?.total_spending || 0);
 
     return Response.json({
       ...customerData,
-      total_amount: totalSpending, // Amount-based model
-      current_tier: 'Unassigned', // Default value since there's no current_tier column in customers table
-      total_spending: totalSpending
+      total_amount: customerData.total_spending, // Amount-based model
+      current_tier: customerData.current_tier || 'Unassigned', // Use the tier name from the join
+      total_spending: customerData.total_spending,
+      tier_id: customerData.tier_id // Include the tier_id in the response
     });
   } catch (error) {
     console.error('Get customer error:', error);

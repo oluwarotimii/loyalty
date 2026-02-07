@@ -1,0 +1,28 @@
+# Femtch VIP - Premium Loyalty Program: Design & Engineering Standards
+
+## Project Overview
+Femtch VIP is a comprehensive loyalty management system designed for femtech businesses to enhance customer retention and engagement through an amount-based reward system with tiered benefits. The platform features customer management, transaction tracking, tier systems, and admin dashboards with secure authentication.
+
+## 1. Design Language (The "VIP" Aesthetic)
+- **Palette:** Use only black, blue, and white. Primary: `--medium-blue: #0019d3`, Background: `--black: #000103`, White: `#ffffff`. For dark mode, use `--black` as background with white text for contrast.
+- **Accents:** Use `--medium-blue` as primary accent for buttons, links, and important elements.
+- **Typography:** Use 'Roboto' for all text elements as defined in globals.css. Headings must be `tracking-tighter` and `font-semibold`.
+- **Atmosphere:** Use `backdrop-blur-md` for navigation and `rounded-2xl` for all containers. Maintain consistent spacing with existing Tailwind classes.
+
+## 2. Tech Stack Constraints
+- **Framework:** Next.js 16 (App Router), TypeScript, Tailwind CSS (v4 with new engine).
+- **Components:** Radix UI Primitives + Custom Shadcn UI components and Lucide React (icons).
+- **Database:** Vercel Postgres via @vercel/postgres.
+- **Animations:** Use subtle transitions (avoid heavy animation libraries unless specifically needed). Leverage Tailwind's built-in transition utilities.
+- **Fonts:** Use Roboto for all text as the primary font.
+
+## 3. UI/UX Guidelines
+- Follow existing component patterns in the codebase for consistency.
+- Maintain responsive design with mobile-first approach (existing mobile classes are already defined).
+- Use only the simplified color palette (black, blue, white) from globals.css for consistency.
+- Implement skeleton loaders and micro-interactions as already established in globals.css.
+
+## 4. Playwright Protocol (The "Eyes")
+- Before building complex layouts, use the Playwright tool to visit `https://www.apple.com/wallet/` or `https://linear.app` to analyze "Premium Card" layouts and spacing.
+- Always verify the UI by taking a screenshot of the local dev server and self-correcting visual "clutter."
+- Ensure new components match the simplified design language and spacing patterns.

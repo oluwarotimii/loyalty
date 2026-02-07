@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createCustomer, getTiers, getCustomerById } from '@/lib/db';
+import { createCustomer, getTiers, getCustomerById, createTransaction } from '@/lib/db';
 import { promises as fs } from 'fs';
 import path from 'path';
 import Papa from 'papaparse';
@@ -78,21 +78,22 @@ export async function POST(request: NextRequest) {
         if (existingCustomer) {
           // Update existing customer if needed
           customerRecord = existingCustomer;
+          
+          // Create a transaction for the total spending to trigger tier assignment
+          if (customer.total_spending > 0) {
+            await createTransactionForCustomer(
+              customerRecord.id,
+              customer.total_spending,
+              'Initial spend from bulk upload'
+            );
+          }
         } else {
-          // Create new customer
+          // Create new customer with initial spending to trigger tier assignment
           customerRecord = await createCustomer(
-            customer.name, 
-            customer.email, 
-            customer.phone || ''
-          );
-        }
-        
-        // Create a transaction for the total spending to trigger tier assignment
-        if (customer.total_spending > 0) {
-          await createTransactionForCustomer(
-            customerRecord.id, 
-            customer.total_spending, 
-            'Initial spend from bulk upload'
+            customer.name,
+            customer.email,
+            customer.phone || '',
+            customer.total_spending
           );
         }
         
@@ -236,15 +237,7 @@ function determineTierFromSpending(spending: number, tiers: any[]): any {
 
 // Helper function to create a transaction for a customer
 async function createTransactionForCustomer(customerId: string, amount: number, description: string) {
-  // Import dynamically to avoid circular dependencies
-  const { sql } = await import('@vercel/postgres');
-  
-  // Insert transaction using amount column
-  const result = await sql`
-    INSERT INTO transactions (customer_id, amount, reference)
-    VALUES (${customerId}, ${amount}, ${description || 'Initial spend from bulk upload'})
-    RETURNING *
-  `;
-  
-  return result.rows[0];
+  // Use the createTransaction function from lib/db to ensure proper tier assignment
+  const transaction = await createTransaction(customerId, 'bulk_upload', amount, description || 'Initial spend from bulk upload');
+  return transaction;
 }

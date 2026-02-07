@@ -26,13 +26,13 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
-    const { name, email, phone } = await request.json();
+    const { name, email, phone, initial_spending } = await request.json();
 
     if (!name || !email) {
       return NextResponse.json({ error: 'Name and email are required' }, { status: 400 });
     }
 
-    const customer = await createCustomer(name, email, phone);
+    const customer = await createCustomer(name, email, phone, initial_spending || 0);
     return NextResponse.json(customer, { status: 201 });
   } catch (error) {
     console.error('Error creating customer:', error);

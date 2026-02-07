@@ -1,6 +1,6 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
@@ -13,24 +13,38 @@ interface Customer {
   name: string;
   email: string;
   phone: string;
-  total_amount: number;
-  total_spending: number;
-  current_tier: string;
+  date_of_birth?: string;
+  address?: string;
+  total_amount?: number;
+  total_spending?: number;
+  current_tier?: string;
+  tier_id?: string;
+  created_at?: string;
 }
 
 interface Transaction {
   id: string;
-  transaction_type: string;
-  points_amount: number;
-  description: string;
-  transaction_date: string;
+  customer_id: string;
+  amount: number;
+  reference: string;
+  created_at: string;
 }
 
 interface TierInfo {
+  id: string;
   name: string;
   min_amount: number;
   max_amount: number;
-  benefits: string[];
+  min_spend?: number;
+  max_spend?: number;
+  rank_order?: number;
+  evaluation_period?: string;
+  is_active?: boolean;
+  benefits: Array<{
+    id?: string;
+    title?: string;
+    description?: string;
+  } | string>;
 }
 
 export default function CustomerPortal() {
@@ -40,6 +54,8 @@ export default function CustomerPortal() {
   const [tiers, setTiers] = useState<TierInfo[]>([]);
   const [allCustomers, setAllCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const dobInputRef = useRef<HTMLInputElement>(null);
+  const addressInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -95,6 +111,50 @@ export default function CustomerPortal() {
     }
   }
 
+  async function handleUpdateInfo(updates: { date_of_birth?: string; address?: string }) {
+    try {
+      const response = await fetch(`/api/customers/${customer?.id}`, {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(updates),
+      });
+
+      if (response.ok) {
+        // Refresh customer data
+        const updatedCustomer = await response.json();
+        setCustomer(prevCustomer => prevCustomer ? {...prevCustomer, ...updatedCustomer} : updatedCustomer);
+        // Optionally show a success message
+      } else {
+        console.error('Failed to update customer info');
+      }
+    } catch (error) {
+      console.error('Error updating customer info:', error);
+    }
+  }
+
+  async function handleSaveInfo() {
+    if (!customer) return;
+    
+    const dobValue = dobInputRef.current?.value;
+    const addressValue = addressInputRef.current?.value;
+    
+    const updates: { date_of_birth?: string; address?: string } = {};
+    
+    if (dobValue !== undefined && dobValue !== customer.date_of_birth) {
+      updates.date_of_birth = dobValue;
+    }
+    
+    if (addressValue !== undefined && addressValue !== customer.address) {
+      updates.address = addressValue;
+    }
+    
+    if (Object.keys(updates).length > 0) {
+      await handleUpdateInfo(updates);
+    }
+  }
+
   if (loading) {
     return <LoadingScreen />;
   }
@@ -110,14 +170,30 @@ export default function CustomerPortal() {
     );
   }
 
-  const currentTier = tiers.find((t) => t.name === customer.current_tier);
-  const nextTier = tiers.find((t) => t.min_amount > customer.total_amount);
+  // Determine current tier from the API response
+  let currentTierName = customer.current_tier || 'Unassigned';
+  let currentTier = null;
+
+  // Find the tier based on the tier_id from the API response
+  if (customer.tier_id) {
+    currentTier = tiers.find(t => t.id === customer.tier_id);
+  } else {
+    // Fallback: find tier by name if tier_id is not available
+    currentTier = tiers.find(t => t.name === currentTierName);
+  }
+
+  // If still no tier found, try to determine based on spending
+  if (!currentTier && currentTierName !== 'Unassigned') {
+    currentTier = tiers.find((t) => t.name === currentTierName);
+  }
+  const customerSpending = customer.total_spending || customer.total_amount || 0;
+  const nextTier = tiers.find((t) => t.min_amount > customerSpending && (t.min_amount || 0) > (currentTier?.min_amount || 0));
   const amountToNextTier = nextTier
-    ? nextTier.min_amount - customer.total_amount
+    ? (nextTier.min_amount || 0) - customerSpending
     : 0;
-  const progressPercent = nextTier
-    ? ((customer.total_amount - (currentTier?.min_amount || 0)) /
-        (nextTier.min_amount - (currentTier?.min_amount || 0))) *
+  const progressPercent = nextTier && currentTier
+    ? ((customerSpending - (currentTier.min_amount || 0)) /
+        ((nextTier.min_amount || 0) - (currentTier.min_amount || 0))) *
       100
     : 100;
 
@@ -128,7 +204,10 @@ export default function CustomerPortal() {
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div>
             <h1 className="text-xl sm:text-2xl font-bold text-foreground funnel-display-hero">My Rewards</h1>
-            <p className="text-sm text-muted-foreground vend-sans-admin">{customer.name}</p>
+            <p className="text-sm text-primary vend-sans-admin">Welcome, {customer.name || 'Valued Customer'}!</p>
+            {customer.phone && (
+              <p className="text-xs text-muted-foreground vend-sans-admin">Phone: {customer.phone}</p>
+            )}
           </div>
           <Button variant="outline" onClick={handleLogout} className="mobile-button">
             Logout
@@ -142,17 +221,17 @@ export default function CustomerPortal() {
           <Card className="p-4 sm:p-6 bg-gradient-to-r from-medium-blue to-dusty-denim text-white mobile-card">
             <div className="space-y-3">
               <h2 className="text-base sm:text-lg font-semibold vend-sans-dashboard">Your Total Spending</h2>
-              <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_amount).toFixed(2)}</div>
+              <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</div>
               <p className="text-blue-100 vend-sans-dashboard">Total VIP spending</p>
             </div>
           </Card>
 
           {/* Spending Card */}
-          <Card className="p-4 sm:p-6 bg-gradient-to-r from-dusty-denim to-apricot-cream text-white mobile-card">
+          <Card className="p-4 sm:p-6 bg-gradient-to-r from-dusty-denim to-apricot-cream text-black mobile-card">
             <div className="space-y-3">
               <h2 className="text-base sm:text-lg font-semibold vend-sans-dashboard">Your Total Spending</h2>
-              <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_amount).toFixed(2)}</div>
-              <p className="text-blue-100 vend-sans-dashboard">Total spent with us</p>
+              <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</div>
+              <p className="text-gray-700 vend-sans-dashboard">Total spent with us</p>
             </div>
           </Card>
 
@@ -163,7 +242,7 @@ export default function CustomerPortal() {
                 <h3 className="text-base sm:text-lg font-semibold mb-2 vend-sans-dashboard">Current Tier</h3>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-2">
                   <span className="text-xl sm:text-2xl font-bold text-primary">
-                    {customer.current_tier}
+                    {currentTierName}
                   </span>
                   {nextTier && (
                     <span className="text-xs sm:text-sm text-muted-foreground vend-sans-dashboard">
@@ -211,23 +290,23 @@ export default function CustomerPortal() {
                     className="flex justify-between items-center pb-2 border-b last:border-b-0 last:pb-0"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium text-xs sm:text-sm truncate vend-sans-dashboard">{trans.transaction_type}</p>
+                      <p className="font-medium text-xs sm:text-sm truncate vend-sans-dashboard">Purchase</p>
                       <p className="text-xs text-muted-foreground truncate vend-sans-dashboard">
-                        {trans.description}
+                        {trans.reference || 'Transaction'}
                       </p>
                     </div>
                     <div className="text-right min-w-[80px] ml-2">
                       <p
                         className={`font-semibold text-xs sm:text-sm ${
-                          trans.points_amount > 0
+                          trans.amount > 0
                             ? 'text-green-600'
                             : 'text-red-600'
                         } vend-sans-dashboard`}
                       >
-                        {trans.points_amount > 0 ? '+' : ''}{trans.points_amount}
+                        {trans.amount > 0 ? '+' : ''}{trans.amount.toFixed(2)}
                       </p>
                       <p className="text-xs text-muted-foreground vend-sans-dashboard">
-                        {new Date(trans.transaction_date).toLocaleDateString()}
+                        {new Date(trans.created_at).toLocaleDateString()}
                       </p>
                     </div>
                   </div>
@@ -236,15 +315,73 @@ export default function CustomerPortal() {
             )}
           </Card>
 
+          {/* Personal Information */}
+          <Card className="p-4 sm:p-6 mobile-card">
+            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 vend-sans-dashboard">Personal Information</h3>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block text-sm font-medium mb-1 vend-sans-dashboard">Date of Birth</label>
+                {customer.date_of_birth ? (
+                  <p className="text-sm vend-sans-dashboard">{new Date(customer.date_of_birth).toLocaleDateString()}</p>
+                ) : (
+                  <p className="text-sm text-muted-foreground vend-sans-dashboard">Not provided</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1 vend-sans-dashboard">Address</label>
+                {customer.address ? (
+                  <p className="text-sm vend-sans-dashboard">{customer.address}</p>
+                ) : (
+                  <p className="text-sm text-muted-foreground vend-sans-dashboard">Not provided</p>
+                )}
+              </div>
+            </div>
+            
+            {/* Update Personal Information Form */}
+            <div className="mt-4 pt-4 border-t border-border">
+              <h4 className="text-sm font-semibold mb-2 vend-sans-dashboard">Update Information</h4>
+              <div className="space-y-3">
+                <div>
+                  <label htmlFor="dob" className="block text-xs font-medium mb-1 vend-sans-dashboard">Date of Birth</label>
+                  <input
+                    type="date"
+                    id="dob"
+                    ref={dobInputRef}
+                    defaultValue={customer.date_of_birth || ''}
+                    className="w-full px-3 py-2 text-sm border border-input rounded-md vend-sans-dashboard bg-background"
+                  />
+                </div>
+                <div>
+                  <label htmlFor="address" className="block text-xs font-medium mb-1 vend-sans-dashboard">Address</label>
+                  <input
+                    type="text"
+                    id="address"
+                    ref={addressInputRef}
+                    defaultValue={customer.address || ''}
+                    placeholder="Enter your address"
+                    className="w-full px-3 py-2 text-sm border border-input rounded-md vend-sans-dashboard bg-background"
+                  />
+                </div>
+                <Button 
+                  type="button" 
+                  onClick={handleSaveInfo}
+                  className="w-full sm:w-auto"
+                >
+                  Save Information
+                </Button>
+              </div>
+            </div>
+          </Card>
+
           {/* All Tiers */}
           <Card className="p-4 sm:p-6 mobile-card">
             <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 vend-sans-dashboard">All Tiers</h3>
             <div className="space-y-2 sm:space-y-3">
               {tiers.map((tier) => (
                 <div
-                  key={tier.name}
+                  key={tier.id}
                   className={`p-3 sm:p-4 rounded-lg border ${
-                    tier.name === customer.current_tier
+                    tier.name === currentTierName
                       ? 'border-primary bg-primary/10'
                       : 'border-border'
                   }`}
@@ -252,18 +389,20 @@ export default function CustomerPortal() {
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-2 gap-1">
                     <h4 className="font-semibold text-sm vend-sans-dashboard">{tier.name}</h4>
                     <span className="text-xs sm:text-sm text-muted-foreground vend-sans-dashboard">
-                      ₦{tier.min_amount}+ spending
+                      ₦{tier.min_amount?.toLocaleString()}+ spending
                     </span>
                   </div>
-                  {tier.benefits.length > 0 && (
+                  {tier.benefits && tier.benefits.length > 0 && (
                     <ul className="text-xs space-y-1 text-muted-foreground vend-sans-dashboard">
-                      {tier.benefits.slice(0, 2).map((benefit, idx) => (
-                        <li key={idx} className="truncate">• {benefit}</li>
+                      {tier.benefits.map((benefit: any, idx: number) => (
+                        <li key={idx} className="truncate">
+                          • {typeof benefit === 'string' ? benefit : benefit.title || benefit.description}
+                        </li>
                       ))}
-                      {tier.benefits.length > 2 && (
-                        <li className="truncate">• +{tier.benefits.length - 2} more</li>
-                      )}
                     </ul>
+                  )}
+                  {(!tier.benefits || tier.benefits.length === 0) && (
+                    <p className="text-xs text-muted-foreground vend-sans-dashboard">No specific benefits defined</p>
                   )}
                 </div>
               ))}
@@ -273,12 +412,13 @@ export default function CustomerPortal() {
           {/* Leaderboard */}
           <Card className="p-4 sm:p-6 mobile-card">
             <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 vend-sans-dashboard">Tier Leaderboard</h3>
-            <Leaderboard 
-              customers={allCustomers.map(c => ({ 
-                ...c, 
-                total_spending: c.total_spending || c.total_amount || 0 
-              }))} 
-              initialTiers={tiers} 
+            <Leaderboard
+              customers={allCustomers.map(c => ({
+                ...c,
+                total_spending: c.total_spending ?? c.total_amount ?? 0,
+                total_amount: c.total_amount ?? c.total_spending ?? 0
+              }))}
+              initialTiers={tiers}
             />
           </Card>
         </div>
