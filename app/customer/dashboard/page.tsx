@@ -10,26 +10,43 @@ export default function CustomerDashboardPage() {
   const router = useRouter();
   const [authenticated, setAuthenticated] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [allCustomers, setAllCustomers] = useState<any[]>([]);
+  const [tiers, setTiers] = useState<any[]>([]);
 
   useEffect(() => {
     // Check if user has customer session cookie
-    const checkAuth = async () => {
+    const checkAuthAndLoadData = async () => {
       try {
         const response = await fetch('/api/auth/customer');
         if (response.status === 401) {
           router.push('/customer/login');
+          return;
         } else {
           setAuthenticated(true);
         }
+
+        // Fetch all customers for leaderboard
+        const customersResponse = await fetch('/api/customers');
+        if (customersResponse.ok) {
+          const customersData = await customersResponse.json();
+          setAllCustomers(customersData);
+        }
+
+        // Fetch tiers
+        const tiersResponse = await fetch('/api/tiers');
+        if (tiersResponse.ok) {
+          const tiersData = await tiersResponse.json();
+          setTiers(tiersData);
+        }
       } catch (error) {
-        console.error('Auth check failed:', error);
+        console.error('Auth check or data loading failed:', error);
         router.push('/customer/login');
       } finally {
         setLoading(false);
       }
     };
 
-    checkAuth();
+    checkAuthAndLoadData();
   }, [router]);
 
   if (loading) {
@@ -47,5 +64,5 @@ export default function CustomerDashboardPage() {
     return null;
   }
 
-  return <CustomerPortal />;
+  return <CustomerPortal allCustomers={allCustomers} initialTiers={tiers} />;
 }

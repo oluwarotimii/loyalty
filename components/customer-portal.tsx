@@ -48,12 +48,17 @@ interface TierInfo {
   } | string>;
 }
 
-export default function CustomerPortal() {
+interface CustomerPortalProps {
+  allCustomers?: any[];
+  initialTiers?: any[];
+}
+
+export default function CustomerPortal({ allCustomers = [], initialTiers = [] }: CustomerPortalProps) {
   const router = useRouter();
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [tiers, setTiers] = useState<TierInfo[]>([]);
-  const [allCustomers, setAllCustomers] = useState<any[]>([]);
+  const [allCustomersState, setAllCustomersState] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   const dobInputRef = useRef<HTMLInputElement>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
@@ -78,19 +83,28 @@ export default function CustomerPortal() {
             const transData = await transRes.json();
             setTransactions(transData);
           }
+        }
 
-          // Fetch tiers
+        // Use passed props if available, otherwise fetch
+        if (initialTiers.length > 0) {
+          setTiers(initialTiers);
+        } else {
           const tiersRes = await fetch('/api/tiers');
           if (tiersRes.ok) {
             const tiersData = await tiersRes.json();
             setTiers(tiersData);
           }
+        }
 
+        if (allCustomers.length > 0) {
+          // Use passed customers if available
+          setAllCustomersState(allCustomers);
+        } else {
           // Fetch all customers for leaderboard
           const customersRes = await fetch('/api/customers');
           if (customersRes.ok) {
             const customersData = await customersRes.json();
-            setAllCustomers(customersData);
+            setAllCustomersState(customersData);
           }
         }
       } catch (error) {
@@ -101,7 +115,7 @@ export default function CustomerPortal() {
     };
 
     fetchData();
-  }, [router]);
+  }, [router, allCustomers, initialTiers]);
 
   async function handleLogout() {
     try {
@@ -170,6 +184,9 @@ export default function CustomerPortal() {
       </div>
     );
   }
+
+  // Store customer data in a variable accessible to the leaderboard
+  const customerData = customer;
 
   // Determine current tier from the API response
   let currentTierName = customer.current_tier || 'Unassigned';
@@ -413,14 +430,102 @@ export default function CustomerPortal() {
           {/* Leaderboard */}
           <Card className="p-4 sm:p-6 mobile-card">
             <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Tier Leaderboard</h3>
-            <Leaderboard
-              customers={allCustomers.map(c => ({
-                ...c,
-                total_spending: c.total_spending ?? c.total_amount ?? 0,
-                total_amount: c.total_amount ?? c.total_spending ?? 0
-              }))}
-              initialTiers={tiers}
-            />
+            <div className="space-y-6">
+              {/* Current Tier Leaderboard */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <h3 className="text-md font-semibold text-primary">{currentTierName} Tier</h3>
+                  <span className="text-sm text-muted-foreground">
+                    {allCustomersState.filter(c => c.current_tier === currentTierName).length} members
+                  </span>
+                </div>
+                <Card className="p-3 mobile-card">
+                  <div className="space-y-2">
+                    {allCustomersState
+                      .filter(c => c.current_tier === currentTierName)
+                      .sort((a, b) => (b.total_spending || b.total_amount || 0) - (a.total_spending || a.total_amount || 0))
+                      .map((customer, index) => {
+                        const isCurrentUser = customer.id === customerData.id;
+                        return (
+                          <div
+                            key={customer.id}
+                            className={`flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition touch-target ${
+                              isCurrentUser ? 'bg-primary/10 border-primary' : ''
+                            }`}
+                          >
+                            <div className="flex items-center gap-2 flex-1 min-w-0">
+                              <div className={`w-7 h-7 rounded-full ${
+                                isCurrentUser 
+                                  ? 'bg-primary text-primary-foreground' 
+                                  : 'bg-muted text-muted-foreground'
+                              } flex items-center justify-center font-bold text-xs sm:text-sm`}>
+                                {index + 1}
+                              </div>
+                              <div className="min-w-0 flex-1">
+                                <p className={`font-semibold truncate ${
+                                  isCurrentUser ? 'text-primary' : ''
+                                }`}>
+                                  {isCurrentUser ? `${customer.name} (You)` : customer.name}
+                                </p>
+                                <div className="flex items-center gap-2">
+                                  <p className="text-xs text-muted-foreground truncate">{customer.email}</p>
+                                  {customer.phone && (
+                                    <p className="text-xs text-muted-foreground truncate">({customer.phone})</p>
+                                  )}
+                                </div>
+                              </div>
+                            </div>
+                            <div className="text-right min-w-[80px] ml-2">
+                              <p className="font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</p>
+                              <p className="text-xs text-muted-foreground">spent</p>
+                            </div>
+                          </div>
+                        );
+                      })}
+                  </div>
+                </Card>
+              </div>
+
+              {/* Other Tiers Information */}
+              <div className="space-y-4">
+                <h3 className="text-md font-semibold text-muted-foreground">Other Tiers</h3>
+                {tiers
+                  .filter(tier => tier.name !== currentTierName)
+                  .sort((a, b) => (a.min_amount || 0) - (b.min_amount || 0))
+                  .map((tier) => (
+                    <div key={tier.id} className="border border-border rounded-lg p-4">
+                      <div className="flex justify-between items-start mb-2">
+                        <h4 className="font-semibold text-sm">{tier.name}</h4>
+                        <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-1 rounded-full">
+                          ₦{tier.min_amount?.toLocaleString()}+ spending
+                        </span>
+                      </div>
+                      
+                      {tier.benefits && tier.benefits.length > 0 && (
+                        <div className="mt-3">
+                          <h5 className="text-xs font-medium text-muted-foreground mb-1">Benefits:</h5>
+                          <ul className="text-xs space-y-1">
+                            {tier.benefits.map((benefit: any, idx: number) => (
+                              <li key={idx} className="flex items-start">
+                                <span className="text-primary mr-2">•</span>
+                                <span>
+                                  {typeof benefit === 'string' 
+                                    ? benefit 
+                                    : (benefit.title || benefit.description)}
+                                </span>
+                              </li>
+                            ))}
+                          </ul>
+                        </div>
+                      )}
+                      
+                      {(!tier.benefits || tier.benefits.length === 0) && (
+                        <p className="text-xs text-muted-foreground">No specific benefits defined</p>
+                      )}
+                    </div>
+                  ))}
+              </div>
+            </div>
           </Card>
         </div>
       </div>
