@@ -11,6 +11,7 @@ import Leaderboard from './leaderboard';
 import StatsOverview from './stats-overview';
 import NotificationPanel from './notification-panel';
 import SettingsPanel from './settings-panel';
+import BulkUploadComponent from './bulk-upload';
 
 interface Customer {
   id: string;
@@ -88,6 +89,7 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
               <TabsTrigger value="customers" className="mobile-tab whitespace-nowrap">Customers</TabsTrigger>
               <TabsTrigger value="transactions" className="mobile-tab whitespace-nowrap">Transactions</TabsTrigger>
               <TabsTrigger value="tiers" className="mobile-tab whitespace-nowrap">Tiers & Benefits</TabsTrigger>
+              <TabsTrigger value="bulk-upload" className="mobile-tab whitespace-nowrap">Bulk Upload</TabsTrigger>
               <TabsTrigger value="leaderboard" className="mobile-tab whitespace-nowrap">Leaderboard</TabsTrigger>
               <TabsTrigger value="notifications" className="mobile-tab whitespace-nowrap">Notifications</TabsTrigger>
               <TabsTrigger value="settings" className="mobile-tab whitespace-nowrap">Settings</TabsTrigger>
@@ -152,6 +154,10 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
               <TierEditor initialTiers={initialTiers} />
             </TabsContent>
 
+            <TabsContent value="bulk-upload" className="space-y-4">
+              <BulkUploadComponent />
+            </TabsContent>
+
             <TabsContent value="leaderboard" className="space-y-4">
               <Leaderboard customers={customers} />
             </TabsContent>
@@ -178,9 +184,10 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
               <option value="customers">Customers</option>
               <option value="transactions">Transactions</option>
               <option value="tiers">Tiers & Benefits</option>
+              <option value="bulk-upload">Bulk Upload</option>
               <option value="leaderboard">Leaderboard</option>
               <option value="notifications">Notifications</option>
-              <option value="settings">Settings</option>
+              {/* <option value="settings">Settings</option> */}
             </select>
           </div>
 
@@ -265,11 +272,11 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
             </div>
           )}
 
-          {activeTab === 'settings' && (
+          {/* {activeTab === 'settings' && (
             <div className="space-y-4">
               <SettingsPanel />
             </div>
-          )}
+          )} */}
         </div>
       </div>
     </div>
