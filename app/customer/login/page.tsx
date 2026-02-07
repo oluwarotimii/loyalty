@@ -59,7 +59,7 @@ export default function CustomerLoginPage() {
               My Rewards
             </h1>
             <p className="text-muted-foreground text-sm vend-sans-dashboard">
-              Check your loyalty spending and benefits
+              Access your VIP benefits and rewards
             </p>
           </div>
 

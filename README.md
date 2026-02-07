@@ -1,4 +1,4 @@
-# Femloyal - Loyalty Management Platform
+# Femtch VIP - Premium Loyalty Program
 
 A comprehensive loyalty management system designed for femtech businesses to enhance customer retention and engagement through an amount-based reward system with tiered benefits.
 

@@ -134,7 +134,7 @@ export default function CustomerPortal() {
             <div className="space-y-3">
               <h2 className="text-base sm:text-lg font-semibold vend-sans-dashboard">Your Total Spending</h2>
               <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_amount).toFixed(2)}</div>
-              <p className="text-blue-100 vend-sans-dashboard">Total loyalty spending</p>
+              <p className="text-blue-100 vend-sans-dashboard">Total VIP spending</p>
             </div>
           </Card>
 
@@ -142,7 +142,7 @@ export default function CustomerPortal() {
           <Card className="p-4 sm:p-6 bg-gradient-to-r from-dusty-denim to-apricot-cream text-white mobile-card">
             <div className="space-y-3">
               <h2 className="text-base sm:text-lg font-semibold vend-sans-dashboard">Your Total Spending</h2>
-              <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_spending).toFixed(2)}</div>
+              <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_amount).toFixed(2)}</div>
               <p className="text-blue-100 vend-sans-dashboard">Total spent with us</p>
             </div>
           </Card>

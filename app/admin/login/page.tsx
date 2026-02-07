@@ -122,10 +122,10 @@ export default function AdminLoginPage() {
         <div className="space-y-6">
           <div className="text-center">
             <h1 className="text-3xl font-bold text-foreground mb-2">
-              Admin Dashboard
+              Femtch VIP Admin
             </h1>
             <p className="text-muted-foreground">
-              Femtech Loyalty Management System
+              Femtch VIP Premium Loyalty Program
             </p>
           </div>
 

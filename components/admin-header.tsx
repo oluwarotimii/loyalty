@@ -31,7 +31,7 @@ export default function AdminHeader() {
       <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
         <div className="flex items-center gap-2">
           <h1 className="text-lg sm:text-xl font-bold text-foreground funnel-display-title">
-            Spending Dashboard
+            Femtch VIP Dashboard
           </h1>
         </div>
 

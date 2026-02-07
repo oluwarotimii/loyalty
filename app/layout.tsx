@@ -3,7 +3,7 @@ import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 
 export const metadata: Metadata = {
-  title: 'Femtech - Loyalty Management Platform',
+  title: 'Femtch VIP - Premium Loyalty Program',
   description:
     'A comprehensive loyalty management system designed for femtech businesses to enhance customer retention and engagement.',
 }

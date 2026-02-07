@@ -74,8 +74,8 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
       <header className="sticky-mobile border-b border-border bg-card px-4 py-3 sm:px-6 sm:py-4">
         <div className="header-content flex items-center justify-between">
           <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold funnel-display-title">Loyalty Management Platform</h1>
-            <p className="text-muted-foreground text-sm mt-1 vend-sans-dashboard">Manage customers, spending, and loyalty tiers</p>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold funnel-display-title">Femtch VIP</h1>
+            <p className="text-muted-foreground text-sm mt-1 vend-sans-dashboard">Premium Loyalty Program Dashboard</p>
           </div>
         </div>
       </header>

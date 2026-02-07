@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createCustomer, getTiers } from '@/lib/db';
+import { createCustomer, getTiers, getCustomerById } from '@/lib/db';
 import { promises as fs } from 'fs';
 import path from 'path';
 import Papa from 'papaparse';
@@ -62,28 +62,48 @@ export async function POST(request: NextRequest) {
     const results = [];
     for (const customer of customerData) {
       try {
-        // Create the customer
-        const newCustomer = await createCustomer(
-          customer.name, 
-          customer.email, 
-          customer.phone || ''
-        );
+        // Check if customer already exists by email
+        let existingCustomer = null;
+        try {
+          const { sql } = await import('@vercel/postgres');
+          const result = await sql`SELECT * FROM customers WHERE email = ${customer.email}`;
+          if (result.rows.length > 0) {
+            existingCustomer = result.rows[0];
+          }
+        } catch (error) {
+          console.log(`Error checking for existing customer with email ${customer.email}:`, error);
+        }
+        
+        let customerRecord;
+        if (existingCustomer) {
+          // Update existing customer if needed
+          customerRecord = existingCustomer;
+        } else {
+          // Create new customer
+          customerRecord = await createCustomer(
+            customer.name, 
+            customer.email, 
+            customer.phone || ''
+          );
+        }
         
         // Create a transaction for the total spending to trigger tier assignment
         if (customer.total_spending > 0) {
           await createTransactionForCustomer(
-            newCustomer.id, 
+            customerRecord.id, 
             customer.total_spending, 
             'Initial spend from bulk upload'
           );
         }
         
+        // Get updated customer info with total spending
+        const updatedCustomer = await getCustomerById(customerRecord.id);
+        
         // Determine the appropriate tier based on spending
-        const assignedTier = determineTierFromSpending(customer.total_spending, tiers);
+        const assignedTier = determineTierFromSpending(updatedCustomer.total_spending, tiers);
         
         results.push({
-          ...newCustomer,
-          total_spending: customer.total_spending,
+          ...updatedCustomer,
           assigned_tier: assignedTier?.name || 'Unassigned',
           status: 'success'
         });
@@ -92,7 +112,7 @@ export async function POST(request: NextRequest) {
           name: customer.name,
           email: customer.email,
           status: 'error',
-          error: error.message || 'Failed to create customer'
+          error: error.message || 'Failed to create/update customer'
         });
       }
     }
@@ -217,7 +237,7 @@ function determineTierFromSpending(spending: number, tiers: any[]): any {
 // Helper function to create a transaction for a customer
 async function createTransactionForCustomer(customerId: string, amount: number, description: string) {
   // Import dynamically to avoid circular dependencies
-  const { sql } = await import('@/lib/db');
+  const { sql } = await import('@vercel/postgres');
   
   // Insert transaction using amount column
   const result = await sql`
