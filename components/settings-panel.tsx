@@ -44,7 +44,7 @@ export default function SettingsPanel() {
       </Card>
 
       <Card className="p-6">
-        <h2 className="text-xl font-bold mb-4 vend-sans-dashboard">Loyalty Policies</h2>
+        <h2 className="text-xl font-bold mb-4">Loyalty Policies</h2>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {policies.map((policy, i) => (
             <div key={i} className="p-4 border border-border rounded-lg flex items-start gap-3">

@@ -185,7 +185,7 @@ export async function getTransactions(customerId?: string) {
   return result.rows;
 }
 
-export async function createTransaction(customerId: string, type: string, amount: number, description: string) {
+export async function createTransaction(customerId: string, amount: number, reference: string, type: string = 'purchase') {
   const client = await sql.connect();
   try {
     await client.query('BEGIN');
@@ -193,9 +193,9 @@ export async function createTransaction(customerId: string, type: string, amount
     // Insert transaction using amount column
     // Using reference column for description since that's what's available in the schema
     const result = await client.query(
-      `INSERT INTO transactions (customer_id, amount, reference)
-       VALUES ($1, $2, $3) RETURNING *`,
-      [customerId, amount, description || '']
+      `INSERT INTO transactions (customer_id, amount, reference, type)
+       VALUES ($1, $2, $3, $4) RETURNING *`,
+      [customerId, amount, reference || '', type]
     );
 
     // Calculate new total spending for the customer

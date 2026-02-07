@@ -1,29 +1,7 @@
 @import "tailwindcss";
+@import "@fontsource/inter/index.css";
 
 @custom-variant dark (&:is(.dark *));
-
-/* Custom classes for fonts */
-.vend-sans-admin {
-  font-family: "Vend Sans", sans-serif;
-  font-weight: 500;
-  font-optical-sizing: auto;
-}
-
-.funnel-display-hero {
-  font-family: "Funnel Display", sans-serif;
-  font-weight: 800;
-}
-
-.vend-sans-dashboard {
-  font-family: "Vend Sans", sans-serif;
-  font-weight: 400;
-  font-optical-sizing: auto;
-}
-
-.funnel-display-title {
-  font-family: "Funnel Display", sans-serif;
-  font-weight: 700;
-}
 
 :root {
   /* Color palette */
@@ -105,9 +83,9 @@
 }
 
 @theme inline {
-  --font-sans: 'Vend Sans', 'Vend Sans Fallback';
-  --font-mono: 'Roboto', 'Roboto Fallback';
-  --font-heading: 'Funnel Display', 'Funnel Display Fallback';
+  --font-sans: 'Inter', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+  --font-mono: ui-monospace, SFMono-Regular, "SF Mono", Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  --font-heading: 'Inter', ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-card: var(--card);
@@ -160,35 +138,35 @@
   .container {
     @apply px-4;
   }
-  
+
   .stats-grid {
     @apply grid-cols-1 gap-3;
   }
-  
+
   .customer-details-grid {
     @apply grid-cols-1;
   }
-  
+
   .transaction-panel-grid {
     @apply grid-cols-1;
   }
-  
+
   .tabs-container {
     @apply space-y-4;
   }
-  
+
   .header-content {
     @apply flex-col items-start space-y-2;
   }
-  
+
   .dashboard-content {
     @apply p-4;
   }
-  
+
   .customer-list-container {
     @apply max-h-60;
   }
-  
+
   .transaction-history-container {
     @apply max-h-60;
   }

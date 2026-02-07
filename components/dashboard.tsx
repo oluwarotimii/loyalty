@@ -74,8 +74,8 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
       <header className="sticky-mobile border-b border-border bg-card px-4 py-3 sm:px-6 sm:py-4">
         <div className="header-content flex items-center justify-between">
           <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold funnel-display-title">Femtch VIP</h1>
-            <p className="text-muted-foreground text-sm mt-1 vend-sans-dashboard">Premium Loyalty Program Dashboard</p>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Femtch VIP</h1>
+            <p className="text-muted-foreground text-sm mt-1">Premium Loyalty Program Dashboard</p>
           </div>
         </div>
       </header>
@@ -108,7 +108,7 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
                   <CustomerForm onCustomerAdded={handleCustomerAdded} />
                   {selectedCustomer && (
                     <div className="bg-card border border-border rounded-lg p-4 mobile-card">
-                      <h3 className="font-semibold mb-3 vend-sans-admin">Customer Details</h3>
+                      <h3 className="font-semibold mb-3">Customer Details</h3>
                       <div className="space-y-2 text-sm">
                         <p>
                           <span className="text-muted-foreground">Name:</span> {selectedCustomer.name}
@@ -158,7 +158,7 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
             </TabsContent>
 
             <TabsContent value="leaderboard" className="space-y-4">
-              <Leaderboard customers={customers} />
+              <Leaderboard customers={customers} initialTiers={initialTiers} />
             </TabsContent>
 
             <TabsContent value="notifications" className="space-y-4">
@@ -174,7 +174,7 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
             <select
               value={activeTab}
               onChange={(e) => setActiveTab(e.target.value)}
-              className="w-full p-3 border border-input rounded-lg bg-background text-foreground vend-sans-admin mobile-input"
+              className="w-full p-3 border border-input rounded-lg bg-background text-foreground mobile-input"
             >
               <option value="dashboard">Dashboard</option>
               <option value="customers">Customers</option>
@@ -206,7 +206,7 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
                 <CustomerForm onCustomerAdded={handleCustomerAdded} />
                 {selectedCustomer && (
                   <div className="bg-card border border-border rounded-lg p-4 mobile-card">
-                    <h3 className="font-semibold mb-3 vend-sans-dashboard">Customer Details</h3>
+                    <h3 className="font-semibold mb-3">Customer Details</h3>
                     <div className="space-y-2 text-sm">
                       <p>
                         <span className="text-muted-foreground">Name:</span> {selectedCustomer.name}
@@ -257,7 +257,7 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
 
           {activeTab === 'leaderboard' && (
             <div className="space-y-4">
-              <Leaderboard customers={customers} />
+              <Leaderboard customers={customers} initialTiers={initialTiers} />
             </div>
           )}
 

@@ -9,7 +9,7 @@ interface Transaction {
   customer_id: string;
   type: string;
   amount: number;
-  description?: string;
+  reference: string;
   created_at: string;
 }
 
@@ -80,9 +80,9 @@ export default function TransactionHistory({ customerId }: TransactionHistoryPro
 
   return (
     <Card className="p-3 mobile-card">
-      <h3 className="text-lg font-bold mb-2 vend-sans-dashboard">Transaction History</h3>
+      <h3 className="text-lg font-bold mb-2">Transaction History</h3>
       {customer && (
-        <p className="text-sm text-muted-foreground mb-3 vend-sans-dashboard">For: {customer.name}</p>
+        <p className="text-sm text-muted-foreground mb-3">For: {customer.name}</p>
       )}
       {loading ? (
         <p className="text-muted-foreground text-center py-4">Loading...</p>
@@ -90,23 +90,27 @@ export default function TransactionHistory({ customerId }: TransactionHistoryPro
         <p className="text-muted-foreground text-center py-4">No transactions yet</p>
       ) : (
         <div className="space-y-2 max-h-60 overflow-y-auto">
-          {transactions.map((tx) => (
-            <div key={tx.id} className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition touch-target">
-              <div className="flex items-center gap-2 flex-1 min-w-0">
-                <div className="text-lg">{getTypeIcon(tx.type)}</div>
-                <div className="flex-1 min-w-0">
-                  <p className={`font-semibold capitalize truncate ${getTypeColor(tx.type)}`}>{tx.type}</p>
-                  {tx.description && <p className="text-xs text-muted-foreground truncate">{tx.description}</p>}
+          {transactions.map((tx) => {
+            // Use 'purchase' as default type if type field doesn't exist
+            const transactionType = tx.type || 'purchase';
+            return (
+              <div key={tx.id} className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition touch-target">
+                <div className="flex items-center gap-2 flex-1 min-w-0">
+                  <div className="text-lg">{getTypeIcon(transactionType)}</div>
+                  <div className="flex-1 min-w-0">
+                    <p className={`font-semibold capitalize truncate ${getTypeColor(transactionType)}`}>{transactionType}</p>
+                    {tx.reference && <p className="text-xs text-muted-foreground truncate">{tx.reference}</p>}
+                  </div>
+                </div>
+                <div className="text-right min-w-[80px]">
+                  <p className={`font-bold truncate ${tx.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
+                    ₦{tx.amount}
+                  </p>
+                  <p className="text-xs text-muted-foreground">{new Date(tx.created_at).toLocaleDateString()}</p>
                 </div>
               </div>
-              <div className="text-right min-w-[80px]">
-                <p className={`font-bold truncate ${tx.amount > 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  ₦{tx.amount}
-                </p>
-                <p className="text-xs text-muted-foreground">{new Date(tx.created_at).toLocaleDateString()}</p>
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </Card>

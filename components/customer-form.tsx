@@ -63,7 +63,7 @@ export default function CustomerForm({ onCustomerAdded }: CustomerFormProps) {
       </DialogTrigger>
       <DialogContent className="sm:max-w-md">
         <DialogHeader>
-          <DialogTitle className="vend-sans-dashboard">Add Customer</DialogTitle>
+          <DialogTitle>Add Customer</DialogTitle>
         </DialogHeader>
         <div className="flex flex-col items-center justify-center">
           <dotlottie-wc 

@@ -30,7 +30,7 @@ export default function AdminHeader() {
     <header className="sticky-mobile border-b border-border bg-background z-50">
       <div className="flex items-center justify-between px-4 py-3 sm:px-6 sm:py-4">
         <div className="flex items-center gap-2">
-          <h1 className="text-lg sm:text-xl font-bold text-foreground funnel-display-title">
+          <h1 className="text-lg sm:text-xl font-bold text-foreground">
             Femtch VIP Dashboard
           </h1>
         </div>
@@ -38,7 +38,7 @@ export default function AdminHeader() {
         <div className="flex items-center gap-3 sm:gap-4">
           <Link
             href="/customer"
-            className="text-xs sm:text-sm text-muted-foreground hover:text-foreground vend-sans-admin"
+            className="text-xs sm:text-sm text-muted-foreground hover:text-foreground"
           >
             View Customer Portal
           </Link>
@@ -63,21 +63,21 @@ export default function AdminHeader() {
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-44 sm:w-48">
-              <DropdownMenuLabel className="vend-sans-admin">Admin Menu</DropdownMenuLabel>
+              <DropdownMenuLabel>Admin Menu</DropdownMenuLabel>
               <DropdownMenuSeparator />
               <DropdownMenuItem asChild>
-                <Link href="/admin/dashboard" className="vend-sans-admin">Dashboard</Link>
+                <Link href="/admin/dashboard">Dashboard</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/admin/settings" className="vend-sans-admin">Account Settings</Link>
+                <Link href="/admin/settings">Account Settings</Link>
               </DropdownMenuItem>
               <DropdownMenuItem asChild>
-                <Link href="/admin/manage-users" className="vend-sans-admin">Manage Admin Users</Link>
+                <Link href="/admin/manage-users">Manage Admin Users</Link>
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem
                 onClick={handleLogout}
-                className="text-destructive cursor-pointer vend-sans-admin"
+                className="text-destructive cursor-pointer"
               >
                 Logout
               </DropdownMenuItem>

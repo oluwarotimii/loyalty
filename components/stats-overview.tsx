@@ -34,8 +34,8 @@ export default function StatsOverview({ customers }: StatsOverviewProps) {
         <Card key={i} className="p-3 mobile-card">
           <div className="flex items-center justify-between">
             <div>
-              <p className="text-muted-foreground text-xs sm:text-sm vend-sans-admin">{stat.label}</p>
-              <p className="text-xl sm:text-2xl font-normal mt-1 vend-sans-admin">{stat.value}</p>
+              <p className="text-muted-foreground text-xs sm:text-sm">{stat.label}</p>
+              <p className="text-xl sm:text-2xl font-normal mt-1">{stat.value}</p>
             </div>
             <div className="text-foreground">{stat.icon}</div>
           </div>

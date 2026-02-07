@@ -59,7 +59,7 @@ export default function Leaderboard({ customers, initialTiers }: LeaderboardProp
   // Memoize the filtered customers calculation
   const filteredCustomers = useMemo(() => {
     let result: Customer[] = [];
-    
+
     if (selectedTierId === 'all') {
       // Show all customers
       result = [...customers];
@@ -73,15 +73,43 @@ export default function Leaderboard({ customers, initialTiers }: LeaderboardProp
         });
       }
     }
-    
+
     // Sort by total spending (descending)
     return result.sort((a, b) => (b.total_spending || b.total_amount || 0) - (a.total_spending || a.total_amount || 0));
   }, [selectedTierId, customers, tiers]);
 
+  // Group customers by tier for the "All Tiers" view
+  const customersByTier = useMemo(() => {
+    const grouped: Record<string, Customer[]> = {};
+    
+    // Initialize empty arrays for each tier
+    tiers.forEach(tier => {
+      grouped[tier.name] = [];
+    });
+    
+    // Group customers by their tier
+    customers.forEach(customer => {
+      const tierName = customer.current_tier || 'Unassigned';
+      if (!grouped[tierName]) {
+        grouped[tierName] = [];
+      }
+      grouped[tierName].push(customer);
+    });
+    
+    // Sort each tier's customers by spending
+    Object.keys(grouped).forEach(tierName => {
+      grouped[tierName] = grouped[tierName].sort((a, b) => 
+        (b.total_spending || b.total_amount || 0) - (a.total_spending || a.total_amount || 0)
+      );
+    });
+    
+    return grouped;
+  }, [customers, tiers]);
+
   return (
     <div className="space-y-4">
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <h2 className="text-lg font-bold vend-sans-dashboard">Customer Leaderboard</h2>
+        <h2 className="text-lg font-bold">Customer Leaderboard</h2>
         <div className="w-full sm:w-auto">
           <Select value={selectedTierId} onValueChange={setSelectedTierId}>
             <SelectTrigger className="w-full">
@@ -101,52 +129,152 @@ export default function Leaderboard({ customers, initialTiers }: LeaderboardProp
         </div>
       </div>
 
-      <Card className="p-3 mobile-card">
-        <div className="space-y-2">
-          {filteredCustomers.length === 0 ? (
-            <p className="text-muted-foreground text-center py-6">
-              {selectedTierId === 'all' 
-                ? 'No customers yet' 
-                : `No customers in ${tiers.find(t => t.id === selectedTierId || t.name === selectedTierId)?.name} tier`}
-            </p>
-          ) : (
-            filteredCustomers.map((customer, index) => {
-              const customerTier = getCustomerTier(customer, tiers);
-              
+      {selectedTierId === 'all' ? (
+        // Display separate leaderboards for each tier
+        <div className="space-y-6">
+          {tiers
+            .sort((a, b) => (a.rank_order || 0) - (b.rank_order || 0))
+            .map((tier) => {
+              const tierCustomers = customersByTier[tier.name] || [];
               return (
-                <div
-                  key={customer.id}
-                  className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition touch-target"
-                >
-                  <div className="flex items-center gap-2 flex-1 min-w-0">
-                    <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs sm:text-sm">
-                      {index + 1}
-                    </div>
-                    <div className="min-w-0 flex-1">
-                      <p className="font-semibold truncate">{customer.name}</p>
-                      <div className="flex items-center gap-2">
-                        <p className="text-xs text-muted-foreground truncate">{customer.email}</p>
-                        {customer.phone && (
-                          <p className="text-xs text-muted-foreground truncate">({customer.phone})</p>
-                        )}
-                        {(customerTier || customer.current_tier) && (
-                          <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
-                            {customer.current_tier || customerTier?.name}
-                          </span>
-                        )}
-                      </div>
-                    </div>
+                <div key={tier.id} className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="text-md font-semibold text-primary">{tier.name} Tier</h3>
+                    <span className="text-sm text-muted-foreground">
+                      {tierCustomers.length} {tierCustomers.length === 1 ? 'member' : 'members'}
+                    </span>
                   </div>
-                  <div className="text-right min-w-[80px] ml-2">
-                    <p className="font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</p>
-                    <p className="text-xs text-muted-foreground">spent</p>
-                  </div>
+                  <Card className="p-3 mobile-card">
+                    <div className="space-y-2">
+                      {tierCustomers.length === 0 ? (
+                        <p className="text-muted-foreground text-center py-4 text-sm">No members in this tier</p>
+                      ) : (
+                        tierCustomers.map((customer, index) => {
+                          return (
+                            <div
+                              key={customer.id}
+                              className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition touch-target"
+                            >
+                              <div className="flex items-center gap-2 flex-1 min-w-0">
+                                <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs sm:text-sm">
+                                  {index + 1}
+                                </div>
+                                <div className="min-w-0 flex-1">
+                                  <p className="font-semibold truncate">{customer.name}</p>
+                                  <div className="flex items-center gap-2">
+                                    <p className="text-xs text-muted-foreground truncate">{customer.email}</p>
+                                    {customer.phone && (
+                                      <p className="text-xs text-muted-foreground truncate">({customer.phone})</p>
+                                    )}
+                                  </div>
+                                </div>
+                              </div>
+                              <div className="text-right min-w-[80px] ml-2">
+                                <p className="font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</p>
+                                <p className="text-xs text-muted-foreground">spent</p>
+                              </div>
+                            </div>
+                          );
+                        })
+                      )}
+                    </div>
+                  </Card>
                 </div>
               );
-            })
+            })}
+          
+          {/* Unassigned customers section */}
+          {customersByTier['Unassigned'] && customersByTier['Unassigned'].length > 0 && (
+            <div className="space-y-3">
+              <div className="flex items-center justify-between">
+                <h3 className="text-md font-semibold text-muted-foreground">Unassigned</h3>
+                <span className="text-sm text-muted-foreground">
+                  {customersByTier['Unassigned'].length} {customersByTier['Unassigned'].length === 1 ? 'member' : 'members'}
+                </span>
+              </div>
+              <Card className="p-3 mobile-card">
+                <div className="space-y-2">
+                  {customersByTier['Unassigned'].map((customer, index) => {
+                    return (
+                      <div
+                        key={customer.id}
+                        className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition touch-target"
+                      >
+                        <div className="flex items-center gap-2 flex-1 min-w-0">
+                          <div className="w-7 h-7 rounded-full bg-muted text-muted-foreground flex items-center justify-center font-bold text-xs sm:text-sm">
+                            {index + 1}
+                          </div>
+                          <div className="min-w-0 flex-1">
+                            <p className="font-semibold truncate">{customer.name}</p>
+                            <div className="flex items-center gap-2">
+                              <p className="text-xs text-muted-foreground truncate">{customer.email}</p>
+                              {customer.phone && (
+                                <p className="text-xs text-muted-foreground truncate">({customer.phone})</p>
+                              )}
+                            </div>
+                          </div>
+                        </div>
+                        <div className="text-right min-w-[80px] ml-2">
+                          <p className="font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</p>
+                          <p className="text-xs text-muted-foreground">spent</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </Card>
+            </div>
           )}
         </div>
-      </Card>
+      ) : (
+        // Display single tier leaderboard
+        <Card className="p-3 mobile-card">
+          <div className="space-y-2">
+            {filteredCustomers.length === 0 ? (
+              <p className="text-muted-foreground text-center py-6">
+                {selectedTierId === 'all'
+                  ? 'No customers yet'
+                  : `No customers in ${tiers.find(t => t.id === selectedTierId || t.name === selectedTierId)?.name} tier`}
+              </p>
+            ) : (
+              filteredCustomers.map((customer, index) => {
+                const customerTier = getCustomerTier(customer, tiers);
+
+                return (
+                  <div
+                    key={customer.id}
+                    className="flex items-center justify-between p-3 border border-border rounded-lg hover:bg-accent/50 transition touch-target"
+                  >
+                    <div className="flex items-center gap-2 flex-1 min-w-0">
+                      <div className="w-7 h-7 rounded-full bg-primary text-primary-foreground flex items-center justify-center font-bold text-xs sm:text-sm">
+                        {index + 1}
+                      </div>
+                      <div className="min-w-0 flex-1">
+                        <p className="font-semibold truncate">{customer.name}</p>
+                        <div className="flex items-center gap-2">
+                          <p className="text-xs text-muted-foreground truncate">{customer.email}</p>
+                          {customer.phone && (
+                            <p className="text-xs text-muted-foreground truncate">({customer.phone})</p>
+                          )}
+                          {(customerTier || customer.current_tier) && (
+                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
+                              {customer.current_tier || customerTier?.name}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                    <div className="text-right min-w-[80px] ml-2">
+                      <p className="font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</p>
+                      <p className="text-xs text-muted-foreground">spent</p>
+                    </div>
+                  </div>
+                );
+              })
+            )}
+          </div>
+        </Card>
+      )}
     </div>
   );
 }

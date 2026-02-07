@@ -25,6 +25,7 @@ interface Customer {
 interface Transaction {
   id: string;
   customer_id: string;
+  type: string;
   amount: number;
   reference: string;
   created_at: string;
@@ -203,10 +204,10 @@ export default function CustomerPortal() {
       <header className="sticky-mobile bg-card border-b">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
           <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground funnel-display-hero">My Rewards</h1>
-            <p className="text-sm text-primary vend-sans-admin">Welcome, {customer.name || 'Valued Customer'}!</p>
+            <h1 className="text-xl sm:text-2xl font-bold text-foreground">My Rewards</h1>
+            <p className="text-sm text-primary">Welcome, {customer.name || 'Valued Customer'}!</p>
             {customer.phone && (
-              <p className="text-xs text-muted-foreground vend-sans-admin">Phone: {customer.phone}</p>
+              <p className="text-xs text-muted-foreground">Phone: {customer.phone}</p>
             )}
           </div>
           <Button variant="outline" onClick={handleLogout} className="mobile-button">
@@ -220,18 +221,18 @@ export default function CustomerPortal() {
           {/* Amount Card */}
           <Card className="p-4 sm:p-6 bg-gradient-to-r from-medium-blue to-dusty-denim text-white mobile-card">
             <div className="space-y-3">
-              <h2 className="text-base sm:text-lg font-semibold vend-sans-dashboard">Your Total Spending</h2>
+              <h2 className="text-base sm:text-lg font-semibold">Your Total Spending</h2>
               <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</div>
-              <p className="text-blue-100 vend-sans-dashboard">Total VIP spending</p>
+              <p className="text-blue-100">Total VIP spending</p>
             </div>
           </Card>
 
           {/* Spending Card */}
           <Card className="p-4 sm:p-6 bg-gradient-to-r from-dusty-denim to-apricot-cream text-black mobile-card">
             <div className="space-y-3">
-              <h2 className="text-base sm:text-lg font-semibold vend-sans-dashboard">Your Total Spending</h2>
+              <h2 className="text-base sm:text-lg font-semibold">Your Total Spending</h2>
               <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</div>
-              <p className="text-gray-700 vend-sans-dashboard">Total spent with us</p>
+              <p className="text-gray-700">Total spent with us</p>
             </div>
           </Card>
 
@@ -239,13 +240,13 @@ export default function CustomerPortal() {
           <Card className="p-4 sm:p-6 mobile-card">
             <div className="space-y-3">
               <div>
-                <h3 className="text-base sm:text-lg font-semibold mb-2 vend-sans-dashboard">Current Tier</h3>
+                <h3 className="text-base sm:text-lg font-semibold mb-2">Current Tier</h3>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-2">
                   <span className="text-xl sm:text-2xl font-bold text-primary">
                     {currentTierName}
                   </span>
                   {nextTier && (
-                    <span className="text-xs sm:text-sm text-muted-foreground vend-sans-dashboard">
+                    <span className="text-xs sm:text-sm text-muted-foreground">
                       ₦{amountToNextTier} to {nextTier.name}
                     </span>
                   )}
@@ -263,10 +264,10 @@ export default function CustomerPortal() {
 
               {currentTier && currentTier.benefits.length > 0 && (
                 <div>
-                  <h4 className="font-semibold text-xs sm:text-sm mb-2 vend-sans-dashboard">Tier Benefits</h4>
+                  <h4 className="font-semibold text-xs sm:text-sm mb-2">Tier Benefits</h4>
                   <ul className="space-y-1">
                     {currentTier.benefits.map((benefit, idx) => (
-                      <li key={idx} className="text-xs sm:text-sm text-muted-foreground flex gap-2 vend-sans-dashboard">
+                      <li key={idx} className="text-xs sm:text-sm text-muted-foreground flex gap-2">
                         <span className="text-primary">✓</span>
                         {benefit}
                       </li>
@@ -279,9 +280,9 @@ export default function CustomerPortal() {
 
           {/* Transactions */}
           <Card className="p-4 sm:p-6 mobile-card">
-            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 vend-sans-dashboard">Recent Activity</h3>
+            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Recent Activity</h3>
             {transactions.length === 0 ? (
-              <p className="text-muted-foreground text-sm vend-sans-dashboard">No transactions yet</p>
+              <p className="text-muted-foreground text-sm">No transactions yet</p>
             ) : (
               <div className="space-y-2 sm:space-y-3">
                 {transactions.slice(0, 10).map((trans) => (
@@ -290,8 +291,8 @@ export default function CustomerPortal() {
                     className="flex justify-between items-center pb-2 border-b last:border-b-0 last:pb-0"
                   >
                     <div className="min-w-0 flex-1">
-                      <p className="font-medium text-xs sm:text-sm truncate vend-sans-dashboard">Purchase</p>
-                      <p className="text-xs text-muted-foreground truncate vend-sans-dashboard">
+                      <p className="font-medium text-xs sm:text-sm truncate">{trans.type || 'Purchase'}</p>
+                      <p className="text-xs text-muted-foreground truncate">
                         {trans.reference || 'Transaction'}
                       </p>
                     </div>
@@ -301,11 +302,11 @@ export default function CustomerPortal() {
                           trans.amount > 0
                             ? 'text-green-600'
                             : 'text-red-600'
-                        } vend-sans-dashboard`}
+                        }`}
                       >
                         {trans.amount > 0 ? '+' : ''}{trans.amount.toFixed(2)}
                       </p>
-                      <p className="text-xs text-muted-foreground vend-sans-dashboard">
+                      <p className="text-xs text-muted-foreground">
                         {new Date(trans.created_at).toLocaleDateString()}
                       </p>
                     </div>
@@ -317,53 +318,53 @@ export default function CustomerPortal() {
 
           {/* Personal Information */}
           <Card className="p-4 sm:p-6 mobile-card">
-            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 vend-sans-dashboard">Personal Information</h3>
+            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Personal Information</h3>
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-sm font-medium mb-1 vend-sans-dashboard">Date of Birth</label>
+                <label className="block text-sm font-medium mb-1">Date of Birth</label>
                 {customer.date_of_birth ? (
-                  <p className="text-sm vend-sans-dashboard">{new Date(customer.date_of_birth).toLocaleDateString()}</p>
+                  <p className="text-sm">{new Date(customer.date_of_birth).toLocaleDateString()}</p>
                 ) : (
-                  <p className="text-sm text-muted-foreground vend-sans-dashboard">Not provided</p>
+                  <p className="text-sm text-muted-foreground">Not provided</p>
                 )}
               </div>
               <div>
-                <label className="block text-sm font-medium mb-1 vend-sans-dashboard">Address</label>
+                <label className="block text-sm font-medium mb-1">Address</label>
                 {customer.address ? (
-                  <p className="text-sm vend-sans-dashboard">{customer.address}</p>
+                  <p className="text-sm">{customer.address}</p>
                 ) : (
-                  <p className="text-sm text-muted-foreground vend-sans-dashboard">Not provided</p>
+                  <p className="text-sm text-muted-foreground">Not provided</p>
                 )}
               </div>
             </div>
             
             {/* Update Personal Information Form */}
             <div className="mt-4 pt-4 border-t border-border">
-              <h4 className="text-sm font-semibold mb-2 vend-sans-dashboard">Update Information</h4>
+              <h4 className="text-sm font-semibold mb-2">Update Information</h4>
               <div className="space-y-3">
                 <div>
-                  <label htmlFor="dob" className="block text-xs font-medium mb-1 vend-sans-dashboard">Date of Birth</label>
+                  <label htmlFor="dob" className="block text-xs font-medium mb-1">Date of Birth</label>
                   <input
                     type="date"
                     id="dob"
                     ref={dobInputRef}
                     defaultValue={customer.date_of_birth || ''}
-                    className="w-full px-3 py-2 text-sm border border-input rounded-md vend-sans-dashboard bg-background"
+                    className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
                   />
                 </div>
                 <div>
-                  <label htmlFor="address" className="block text-xs font-medium mb-1 vend-sans-dashboard">Address</label>
+                  <label htmlFor="address" className="block text-xs font-medium mb-1">Address</label>
                   <input
                     type="text"
                     id="address"
                     ref={addressInputRef}
                     defaultValue={customer.address || ''}
                     placeholder="Enter your address"
-                    className="w-full px-3 py-2 text-sm border border-input rounded-md vend-sans-dashboard bg-background"
+                    className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
                   />
                 </div>
-                <Button 
-                  type="button" 
+                <Button
+                  type="button"
                   onClick={handleSaveInfo}
                   className="w-full sm:w-auto"
                 >
@@ -375,7 +376,7 @@ export default function CustomerPortal() {
 
           {/* All Tiers */}
           <Card className="p-4 sm:p-6 mobile-card">
-            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 vend-sans-dashboard">All Tiers</h3>
+            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">All Tiers</h3>
             <div className="space-y-2 sm:space-y-3">
               {tiers.map((tier) => (
                 <div
@@ -387,13 +388,13 @@ export default function CustomerPortal() {
                   }`}
                 >
                   <div className="flex flex-col sm:flex-row sm:items-start justify-between mb-2 gap-1">
-                    <h4 className="font-semibold text-sm vend-sans-dashboard">{tier.name}</h4>
-                    <span className="text-xs sm:text-sm text-muted-foreground vend-sans-dashboard">
+                    <h4 className="font-semibold text-sm">{tier.name}</h4>
+                    <span className="text-xs sm:text-sm text-muted-foreground">
                       ₦{tier.min_amount?.toLocaleString()}+ spending
                     </span>
                   </div>
                   {tier.benefits && tier.benefits.length > 0 && (
-                    <ul className="text-xs space-y-1 text-muted-foreground vend-sans-dashboard">
+                    <ul className="text-xs space-y-1 text-muted-foreground">
                       {tier.benefits.map((benefit: any, idx: number) => (
                         <li key={idx} className="truncate">
                           • {typeof benefit === 'string' ? benefit : benefit.title || benefit.description}
@@ -402,7 +403,7 @@ export default function CustomerPortal() {
                     </ul>
                   )}
                   {(!tier.benefits || tier.benefits.length === 0) && (
-                    <p className="text-xs text-muted-foreground vend-sans-dashboard">No specific benefits defined</p>
+                    <p className="text-xs text-muted-foreground">No specific benefits defined</p>
                   )}
                 </div>
               ))}
@@ -411,7 +412,7 @@ export default function CustomerPortal() {
 
           {/* Leaderboard */}
           <Card className="p-4 sm:p-6 mobile-card">
-            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 vend-sans-dashboard">Tier Leaderboard</h3>
+            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Tier Leaderboard</h3>
             <Leaderboard
               customers={allCustomers.map(c => ({
                 ...c,

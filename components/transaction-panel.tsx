@@ -89,7 +89,7 @@ export default function TransactionPanel({
   return (
     <div className="grid grid-cols-1 gap-4 transaction-panel-grid">
       <Card className="p-3 mobile-card">
-        <h3 className="text-lg font-bold mb-3 vend-sans-dashboard">Add Transaction</h3>
+        <h3 className="text-lg font-bold mb-3">Add Transaction</h3>
         <form onSubmit={handleSubmit} className="space-y-3">
           <div>
             <label className="text-sm font-medium text-label">Customer</label>
@@ -115,9 +115,9 @@ export default function TransactionPanel({
               </SelectTrigger>
               <SelectContent>
                 <SelectItem value="purchase">Purchase</SelectItem>
-                {/* <SelectItem value="referral">Referral</SelectItem>
+                <SelectItem value="referral">Referral</SelectItem>
                 <SelectItem value="bonus">Bonus</SelectItem>
-                <SelectItem value="redemption">Redemption</SelectItem> */}
+                <SelectItem value="redemption">Redemption</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -152,7 +152,7 @@ export default function TransactionPanel({
 
       {selectedCustomer && (
         <Card className="p-3 mobile-card">
-          <h3 className="text-lg font-bold mb-3 vend-sans-dashboard">Quick Add Amount</h3>
+          <h3 className="text-lg font-bold mb-3">Quick Add Amount</h3>
           <div className="space-y-2">
             {[10, 50, 100, 500].map((amount) => (
               <Button

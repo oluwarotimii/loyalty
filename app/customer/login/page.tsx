@@ -56,10 +56,10 @@ export default function CustomerLoginPage() {
       <Card className="w-full max-w-md p-6 sm:p-8 mobile-card">
         <div className="space-y-mobile">
           <div className="text-center">
-            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2 funnel-display-title">
+            <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
               My Rewards
             </h1>
-            <p className="text-muted-foreground text-sm vend-sans-dashboard">
+            <p className="text-muted-foreground text-sm">
               Access your VIP benefits and rewards
             </p>
           </div>
@@ -80,7 +80,7 @@ export default function CustomerLoginPage() {
                 required
                 className="mobile-input"
               />
-              <p className="text-xs text-muted-foreground vend-sans-admin">
+              <p className="text-xs text-muted-foreground">
                 Enter your phone number to access your account
               </p>
             </div>
@@ -101,7 +101,7 @@ export default function CustomerLoginPage() {
           </form>
 
           <div className="pt-4 border-t border-border">
-            <p className="text-center text-sm text-muted-foreground vend-sans-dashboard">
+            <p className="text-center text-sm text-muted-foreground">
               <Link
                 href="/admin/login"
                 className="text-primary hover:underline font-medium"

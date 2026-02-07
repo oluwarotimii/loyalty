@@ -38,7 +38,7 @@ export default function CustomerList({
 
   return (
     <Card className="p-3 mobile-card">
-      <h2 className="text-lg font-bold mb-3 vend-sans-dashboard">Customers ({customers.length})</h2>
+      <h2 className="text-lg font-bold mb-3">Customers ({customers.length})</h2>
       <div className="space-y-2 max-h-60 overflow-y-auto">
         {customers.length === 0 ? (
           <p className="text-muted-foreground text-sm py-4 text-center">No customers yet</p>

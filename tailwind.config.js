@@ -8,7 +8,13 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx,mdx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        sans: ["var(--font-sans)", "Inter", "sans-serif"],
+        heading: ["var(--font-heading)", "Inter", "sans-serif"],
+        mono: ["var(--font-mono)", "monospace"],
+      },
+    },
   },
   plugins: [],
 }
