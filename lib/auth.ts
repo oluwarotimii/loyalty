@@ -93,7 +93,7 @@ export async function customerPhoneLogin(
 ): Promise<{ customer_id: string; session_id: string } | null> {
   try {
     const result = await pool.query(
-      'SELECT id FROM customers WHERE phone_number = $1',
+      'SELECT id FROM customers WHERE phone = $1',
       [phoneNumber]
     );
 
@@ -118,13 +118,13 @@ export async function customerPhoneLogin(
 // Verify customer session
 export async function verifyCustomerSession(
   sessionToken: string
-): Promise<{ customer_id: string; phone_number: string } | null> {
+): Promise<{ customer_id: string; phone: string } | null> {
   try {
     const result = await pool.query(
-      `SELECT c.id, c.phone_number
+      `SELECT c.id, c.phone
        FROM customers c
        JOIN customer_sessions cs ON c.id = cs.customer_id
-       WHERE cs.token = $1 AND cs.expires_at > NOW()`,
+       WHERE cs.session_token = $1 AND cs.expires_at > NOW()`,
       [sessionToken]
     );
 

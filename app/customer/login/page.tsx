@@ -15,11 +15,9 @@ export default function CustomerLoginPage() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
 
+  // Only allow digits in phone number
   const formatPhoneNumber = (value: string) => {
-    const digits = value.replace(/\D/g, '');
-    if (digits.length <= 3) return digits;
-    if (digits.length <= 6) return `${digits.slice(0, 3)}-${digits.slice(3)}`;
-    return `${digits.slice(0, 3)}-${digits.slice(3, 6)}-${digits.slice(6, 10)}`;
+    return value.replace(/\D/g, '');
   };
 
   async function handleLogin(e: React.FormEvent) {
@@ -27,11 +25,14 @@ export default function CustomerLoginPage() {
     setError('');
     setLoading(true);
 
+    // Remove formatting characters to send only digits
+    const rawPhoneNumber = phoneNumber.replace(/\D/g, '');
+
     try {
       const response = await fetch('/api/auth/customer/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ phoneNumber }),
+        body: JSON.stringify({ phoneNumber: rawPhoneNumber }),
       });
 
       const data = await response.json();
@@ -71,11 +72,11 @@ export default function CustomerLoginPage() {
               <Input
                 id="phone"
                 type="tel"
-                placeholder="123-456-7890"
+                placeholder="1234567890"
                 value={phoneNumber}
                 onChange={(e) => setPhoneNumber(formatPhoneNumber(e.target.value))}
                 disabled={loading}
-                maxLength={12}
+                maxLength={11}
                 required
                 className="mobile-input"
               />
@@ -92,7 +93,7 @@ export default function CustomerLoginPage() {
 
             <Button
               type="submit"
-              disabled={loading || phoneNumber.replace(/\D/g, '').length !== 10}
+              disabled={loading || phoneNumber.length !== 11}
               className="w-full mobile-button btn-hover"
             >
               {loading ? 'Logging in...' : 'View My Rewards'}

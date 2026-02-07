@@ -92,7 +92,6 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
               <TabsTrigger value="bulk-upload" className="mobile-tab whitespace-nowrap">Bulk Upload</TabsTrigger>
               <TabsTrigger value="leaderboard" className="mobile-tab whitespace-nowrap">Leaderboard</TabsTrigger>
               <TabsTrigger value="notifications" className="mobile-tab whitespace-nowrap">Notifications</TabsTrigger>
-              <TabsTrigger value="settings" className="mobile-tab whitespace-nowrap">Settings</TabsTrigger>
             </TabsList>
 
             <TabsContent value="customers" className="space-y-4">
@@ -166,9 +165,6 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
               <NotificationPanel customers={customers} />
             </TabsContent>
 
-            <TabsContent value="settings" className="space-y-4">
-              <SettingsPanel />
-            </TabsContent>
           </Tabs>
         </div>
 
@@ -187,7 +183,6 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
               <option value="bulk-upload">Bulk Upload</option>
               <option value="leaderboard">Leaderboard</option>
               <option value="notifications">Notifications</option>
-              {/* <option value="settings">Settings</option> */}
             </select>
           </div>
 
@@ -272,11 +267,6 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
             </div>
           )}
 
-          {/* {activeTab === 'settings' && (
-            <div className="space-y-4">
-              <SettingsPanel />
-            </div>
-          )} */}
         </div>
       </div>
     </div>

@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import LoadingScreen from './loading-screen';
+import Leaderboard from './leaderboard';
 
 interface Customer {
   id: string;
@@ -37,6 +38,7 @@ export default function CustomerPortal() {
   const [customer, setCustomer] = useState<Customer | null>(null);
   const [transactions, setTransactions] = useState<Transaction[]>([]);
   const [tiers, setTiers] = useState<TierInfo[]>([]);
+  const [allCustomers, setAllCustomers] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
@@ -65,6 +67,13 @@ export default function CustomerPortal() {
           if (tiersRes.ok) {
             const tiersData = await tiersRes.json();
             setTiers(tiersData);
+          }
+
+          // Fetch all customers for leaderboard
+          const customersRes = await fetch('/api/customers');
+          if (customersRes.ok) {
+            const customersData = await customersRes.json();
+            setAllCustomers(customersData);
           }
         }
       } catch (error) {
@@ -259,6 +268,18 @@ export default function CustomerPortal() {
                 </div>
               ))}
             </div>
+          </Card>
+
+          {/* Leaderboard */}
+          <Card className="p-4 sm:p-6 mobile-card">
+            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4 vend-sans-dashboard">Tier Leaderboard</h3>
+            <Leaderboard 
+              customers={allCustomers.map(c => ({ 
+                ...c, 
+                total_spending: c.total_spending || c.total_amount || 0 
+              }))} 
+              initialTiers={tiers} 
+            />
           </Card>
         </div>
       </div>
