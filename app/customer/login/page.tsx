@@ -59,7 +59,7 @@ export default function CustomerLoginPage() {
             <div className="flex justify-center mb-4">
               <img 
                 src="/icon.png" 
-                alt="Femtch VIP Logo" 
+                alt="Femtech VIP Logo" 
                 className="h-16 w-16 object-contain"
               />
             </div>

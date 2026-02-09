@@ -57,7 +57,7 @@ export default function Home() {
           <div className="flex flex-col items-center">
             <img 
               src="/icon.png" 
-              alt="Femtch VIP Logo" 
+              alt="Femtech VIP Logo" 
               className="h-20 w-20 object-contain mb-4"
             />
             <h1 className="text-4xl md:text-6xl font-bold mb-6 transition-all duration-700 ease-in-out">

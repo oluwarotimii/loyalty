@@ -1,7 +1,7 @@
-# Femtch VIP - Premium Loyalty Program: Design & Engineering Standards
+# Femtech VIP - Premium Loyalty Program: Design & Engineering Standards
 
 ## Project Overview
-Femtch VIP is a comprehensive loyalty management system designed for femtech businesses to enhance customer retention and engagement through an amount-based reward system with tiered benefits. The platform features customer management, transaction tracking, tier systems, and admin dashboards with secure authentication.
+Femtech VIP is a comprehensive loyalty management system designed for femtech businesses to enhance customer retention and engagement through an amount-based reward system with tiered benefits. The platform features customer management, transaction tracking, tier systems, and admin dashboards with secure authentication.
 
 ## 1. Design Language (The "VIP" Aesthetic)
 - **Palette:** Use only black, blue, and white. Primary: `--medium-blue: #0019d3`, Background: `--black: #000103`, White: `#ffffff`. For dark mode, use `--black` as background with white text for contrast.

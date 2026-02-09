@@ -242,7 +242,7 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
           <div className="flex items-center gap-2">
             <img 
               src="/icon.png" 
-              alt="Femtch VIP Logo" 
+              alt="Femtech VIP Logo" 
               className="h-8 w-8 object-contain"
             />
             <div>

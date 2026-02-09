@@ -124,15 +124,15 @@ export default function AdminLoginPage() {
             <div className="flex justify-center mb-4">
               <img 
                 src="/icon.png" 
-                alt="Femtch VIP Logo" 
+                alt="Femtech VIP Logo" 
                 className="h-16 w-16 object-contain"
               />
             </div>
             <h1 className="text-3xl font-bold text-foreground mb-2">
-              Femtch VIP Admin
+              Femtech VIP Admin
             </h1>
             <p className="text-muted-foreground">
-              Femtch VIP Premium Loyalty Program
+              Femtech VIP Premium Loyalty Program
             </p>
           </div>
 

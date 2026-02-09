@@ -74,7 +74,7 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
       <header className="sticky-mobile border-b border-border bg-card px-4 py-3 sm:px-6 sm:py-4">
         <div className="header-content flex items-center justify-between">
           <div>
-            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Femtch VIP</h1>
+            <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Femtech VIP</h1>
             <p className="text-muted-foreground text-sm mt-1">Premium Loyalty Program Dashboard</p>
           </div>
           <div className="flex items-center gap-2">
