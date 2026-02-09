@@ -29,6 +29,7 @@ export default function CustomerDashboardPage() {
         const customersResponse = await fetch('/api/customers');
         if (customersResponse.ok) {
           const customersData = await customersResponse.json();
+          console.log('Page fetched all customers:', customersData);
           setAllCustomers(customersData);
         }
 
@@ -36,6 +37,7 @@ export default function CustomerDashboardPage() {
         const tiersResponse = await fetch('/api/tiers');
         if (tiersResponse.ok) {
           const tiersData = await tiersResponse.json();
+          console.log('Page fetched tiers:', tiersData);
           setTiers(tiersData);
         }
       } catch (error) {

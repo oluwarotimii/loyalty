@@ -16,6 +16,7 @@ export async function GET(request: NextRequest) {
     } else {
       // Fetch all customers
       const customers = await getCustomers();
+      console.log('All customers API response:', customers);
       return NextResponse.json(customers);
     }
   } catch (error) {

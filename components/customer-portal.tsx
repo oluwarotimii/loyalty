@@ -74,6 +74,7 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
         }
 
         const customerData = await customerRes.json();
+        console.log('Customer data received:', customerData);
         setCustomer(customerData);
 
         // Fetch transactions
@@ -87,23 +88,27 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
 
         // Use passed props if available, otherwise fetch
         if (initialTiers.length > 0) {
+          console.log('Using passed tiers:', initialTiers);
           setTiers(initialTiers);
         } else {
           const tiersRes = await fetch('/api/tiers');
           if (tiersRes.ok) {
             const tiersData = await tiersRes.json();
+            console.log('Fetched tiers:', tiersData);
             setTiers(tiersData);
           }
         }
 
         if (allCustomers.length > 0) {
           // Use passed customers if available
+          console.log('Using passed customers:', allCustomers);
           setAllCustomersState(allCustomers);
         } else {
           // Fetch all customers for leaderboard
           const customersRes = await fetch('/api/customers');
           if (customersRes.ok) {
             const customersData = await customersRes.json();
+            console.log('Fetched all customers:', customersData);
             setAllCustomersState(customersData);
           }
         }
@@ -192,17 +197,26 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
   let currentTierName = customer.current_tier || 'Unassigned';
   let currentTier = null;
 
+  console.log('Customer data for tier calculation:', { 
+    customer, 
+    tiers, 
+    currentTierName 
+  });
+
   // Find the tier based on the tier_id from the API response
   if (customer.tier_id) {
     currentTier = tiers.find(t => t.id === customer.tier_id);
+    console.log('Found tier by ID:', currentTier);
   } else {
     // Fallback: find tier by name if tier_id is not available
     currentTier = tiers.find(t => t.name === currentTierName);
+    console.log('Found tier by name:', currentTier);
   }
 
   // If still no tier found, try to determine based on spending
   if (!currentTier && currentTierName !== 'Unassigned') {
     currentTier = tiers.find((t) => t.name === currentTierName);
+    console.log('Found tier by name fallback:', currentTier);
   }
   const customerSpending = customer.total_spending || customer.total_amount || 0;
   const nextTier = tiers.find((t) => t.min_amount > customerSpending && (t.min_amount || 0) > (currentTier?.min_amount || 0));
@@ -236,18 +250,18 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
       <div className="container mx-auto px-4 py-4 sm:py-6">
         <div className="space-y-mobile">
           {/* Amount Card */}
-          <Card className="p-4 sm:p-6 bg-gradient-to-r from-medium-blue to-dusty-denim text-white mobile-card">
+          <Card className="p-4 sm:p-6 bg-gradient-to-r from-medium-blue to-dusty-denim text-black mobile-card">
             <div className="space-y-3">
-              <h2 className="text-base sm:text-lg font-semibold">Your Total Spending</h2>
+              <h2 className="text-blue sm:text-lg font-semibold">Your Total Spending</h2>
               <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</div>
-              <p className="text-blue-100">Total VIP spending</p>
+              <p className="text-white/80">Total VIP spending</p>
             </div>
           </Card>
 
           {/* Spending Card */}
           <Card className="p-4 sm:p-6 bg-gradient-to-r from-dusty-denim to-apricot-cream text-black mobile-card">
             <div className="space-y-3">
-              <h2 className="text-base sm:text-lg font-semibold">Your Total Spending</h2>
+              <h2 className="text-blue sm:text-lg font-semibold">Your Total Spending</h2>
               <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</div>
               <p className="text-gray-700">Total spent with us</p>
             </div>
@@ -286,7 +300,7 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
                     {currentTier.benefits.map((benefit, idx) => (
                       <li key={idx} className="text-xs sm:text-sm text-muted-foreground flex gap-2">
                         <span className="text-primary">✓</span>
-                        {benefit}
+                        {typeof benefit === 'string' ? benefit : benefit.title || benefit.description}
                       </li>
                     ))}
                   </ul>
@@ -316,12 +330,12 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
                     <div className="text-right min-w-[80px] ml-2">
                       <p
                         className={`font-semibold text-xs sm:text-sm ${
-                          trans.amount > 0
+                          Number(trans.amount) > 0
                             ? 'text-green-600'
                             : 'text-red-600'
                         }`}
                       >
-                        {trans.amount > 0 ? '+' : ''}{trans.amount.toFixed(2)}
+                        {Number(trans.amount) > 0 ? '+' : ''}{Number(trans.amount).toFixed(2)}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {new Date(trans.created_at).toLocaleDateString()}
@@ -336,7 +350,18 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
           {/* Personal Information */}
           <Card className="p-4 sm:p-6 mobile-card">
             <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Personal Information</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+              <div>
+                <label className="block text-sm font-medium mb-1">Email</label>
+                <p className="text-sm">{customer.email || 'Not provided'}</p>
+                {!customer.email && (
+                  <p className="text-xs text-muted-foreground mt-1">Email is required for account verification</p>
+                )}
+              </div>
+              <div>
+                <label className="block text-sm font-medium mb-1">Phone</label>
+                <p className="text-sm">{customer.phone || 'Not provided'}</p>
+              </div>
               <div>
                 <label className="block text-sm font-medium mb-1">Date of Birth</label>
                 {customer.date_of_birth ? (
@@ -354,10 +379,11 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
                 )}
               </div>
             </div>
-            
+
             {/* Update Personal Information Form */}
-            <div className="mt-4 pt-4 border-t border-border">
+            <div className="pt-4 border-t border-border">
               <h4 className="text-sm font-semibold mb-2">Update Information</h4>
+              <p className="text-xs text-muted-foreground mb-3">Note: Email cannot be changed after account creation</p>
               <div className="space-y-3">
                 <div>
                   <label htmlFor="dob" className="block text-xs font-medium mb-1">Date of Birth</label>
@@ -441,6 +467,11 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
                 </div>
                 <Card className="p-3 mobile-card">
                   <div className="space-y-2">
+                    {console.log('All customers for leaderboard:', { 
+                      allCustomersState, 
+                      currentTierName, 
+                      filteredCustomers: allCustomersState.filter(c => c.current_tier === currentTierName) 
+                    })}
                     {allCustomersState
                       .filter(c => c.current_tier === currentTierName)
                       .sort((a, b) => (b.total_spending || b.total_amount || 0) - (a.total_spending || a.total_amount || 0))
@@ -497,7 +528,7 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-semibold text-sm">{tier.name}</h4>
                         <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-1 rounded-full">
-                          ₦{tier.min_amount?.toLocaleString()}+ spending
+                          ₦{(tier.min_amount || 0).toLocaleString()}+ spending
                         </span>
                       </div>
                       
@@ -505,14 +536,14 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
                         <div className="mt-3">
                           <h5 className="text-xs font-medium text-muted-foreground mb-1">Benefits:</h5>
                           <ul className="text-xs space-y-1">
-                            {tier.benefits.map((benefit: any, idx: number) => (
+                            {Array.from(new Set(tier.benefits.map((benefit: any) => 
+                              typeof benefit === 'string' 
+                                ? benefit 
+                                : (benefit.title || benefit.description || '')
+                            ).filter(benefit => benefit.trim() !== ''))).map((uniqueBenefit, idx) => (
                               <li key={idx} className="flex items-start">
                                 <span className="text-primary mr-2">•</span>
-                                <span>
-                                  {typeof benefit === 'string' 
-                                    ? benefit 
-                                    : (benefit.title || benefit.description)}
-                                </span>
+                                <span>{uniqueBenefit}</span>
                               </li>
                             ))}
                           </ul>
