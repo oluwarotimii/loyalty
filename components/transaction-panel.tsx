@@ -14,6 +14,7 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { DollarSign } from 'lucide-react';
+import { formatCurrency } from '@/lib/db';
 
 interface Customer {
   id: string;

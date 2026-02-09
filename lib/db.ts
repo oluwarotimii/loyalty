@@ -12,9 +12,6 @@ export function formatNumberWithCommas(num: number): string {
   return num.toLocaleString();
 }
 
-// Export sql as pool to maintain compatibility
-export const pool = sql;
-
 export async function getCustomers() {
   // Get customers with their total spending and current tier
   const result = await sql`

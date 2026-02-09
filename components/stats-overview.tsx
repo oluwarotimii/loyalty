@@ -2,6 +2,7 @@
 
 import { Card } from '@/components/ui/card';
 import { Users, DollarSign, TrendingUp, Crown } from 'lucide-react';
+import { formatNumberWithCommas } from '@/lib/db';
 
 interface Customer {
   id: string;
@@ -24,7 +25,7 @@ export default function StatsOverview({ customers }: StatsOverviewProps) {
   const topCustomer = customers.length > 0 ? customers.reduce((max, c) => (Number(c.total_spending) > Number(max.total_spending) ? c : max)) : null;
 
   const stats = [
-    { label: 'Total Customers', value: totalCustomers, icon: <Users className="w-5 h-5 sm:w-6 sm:h-6" /> },
+    { label: 'Total Customers', value: formatNumberWithCommas(totalCustomers), icon: <Users className="w-5 h-5 sm:w-6 sm:h-6" /> },
     // { label: 'Total Spending', value: `₦${totalSpending.toLocaleString()}`, icon: <DollarSign className="w-5 h-5 sm:w-6 sm:h-6" /> },
     // { label: 'Avg. Spending', value: `₦${avgSpending.toLocaleString()}`, icon: <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" /> },
     { label: 'Top Customer', value: topCustomer?.name || 'N/A', icon: <Crown className="w-5 h-5 sm:w-6 sm:h-6" /> },

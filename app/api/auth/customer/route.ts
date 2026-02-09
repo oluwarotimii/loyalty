@@ -1,4 +1,4 @@
-import { pool } from '@/lib/db';
+import { sql } from '@vercel/postgres';
 import { verifyCustomerSession } from '@/lib/auth';
 import { cookies } from 'next/headers';
 
@@ -20,8 +20,8 @@ export async function GET(request: Request) {
     
     // Fetch full customer data with tier information
     // First, try to get current active tier
-    let result = await pool.query(
-      `SELECT
+    let result = await sql`
+      SELECT
         c.id, c.name, c.email, c.phone, c.date_of_birth, c.address, c.created_at,
         ct.tier_id,
         COALESCE(t.name, 'Unassigned') as current_tier,
@@ -31,32 +31,30 @@ export async function GET(request: Request) {
          AND ct.period_start <= CURRENT_DATE
          AND ct.period_end >= CURRENT_DATE
        LEFT JOIN tiers t ON ct.tier_id = t.id
-       WHERE c.id = $1`,
-      [customer.id]  // Use 'id' instead of 'customer_id'
-    );
+       WHERE c.id = ${customer.id}
+    `;
 
     // If no active tier found, get the most recent tier assignment
     if (result.rows.length === 0 || !result.rows[0].current_tier || result.rows[0].current_tier === 'Unassigned') {
-      result = await pool.query(
-        `SELECT
+      result = await sql`
+        SELECT
           c.id, c.name, c.email, c.phone, c.date_of_birth, c.address, c.created_at,
           ct_latest.tier_id,
           COALESCE(t_latest.name, 'Unassigned') as current_tier,
-          COALESCE(ct_latest.total_spend, 
+          COALESCE(ct_latest.total_spend,
             (SELECT COALESCE(SUM(amount), 0) FROM transactions WHERE customer_id = c.id)
           ) as total_spending
          FROM customers c
          LEFT JOIN (
-           SELECT DISTINCT ON (customer_id) 
+           SELECT DISTINCT ON (customer_id)
              customer_id, tier_id, total_spend
-           FROM customer_tiers 
-           WHERE customer_id = $1
+           FROM customer_tiers
+           WHERE customer_id = ${customer.id}
            ORDER BY customer_id, period_start DESC
          ) ct_latest ON c.id = ct_latest.customer_id
          LEFT JOIN tiers t_latest ON ct_latest.tier_id = t_latest.id
-         WHERE c.id = $1`,
-        [customer.id]  // Use 'id' instead of 'customer_id'
-      );
+         WHERE c.id = ${customer.id}
+      `;
     }
 
     // If still no customer found, return 404
@@ -70,10 +68,9 @@ export async function GET(request: Request) {
     let customerData = result.rows[0];
     console.log('Customer data retrieved:', customerData);
     if (customerData.total_spending === 0) {
-      const transactionSum = await pool.query(
-        'SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE customer_id = $1',
-        [customer.id]  // Use 'id' instead of 'customer_id'
-      );
+      const transactionSum = await sql`
+        SELECT COALESCE(SUM(amount), 0) as total FROM transactions WHERE customer_id = ${customer.id}
+      `;
       console.log('Transaction sum result:', transactionSum.rows[0]);
       customerData.total_spending = Number(transactionSum.rows[0].total);
     }

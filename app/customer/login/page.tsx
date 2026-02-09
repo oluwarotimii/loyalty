@@ -56,6 +56,13 @@ export default function CustomerLoginPage() {
       <Card className="w-full max-w-md p-6 sm:p-8 mobile-card">
         <div className="space-y-mobile">
           <div className="text-center">
+            <div className="flex justify-center mb-4">
+              <img 
+                src="/icon.png" 
+                alt="Femtch VIP Logo" 
+                className="h-16 w-16 object-contain"
+              />
+            </div>
             <h1 className="text-2xl sm:text-3xl font-bold text-foreground mb-2">
               My Rewards
             </h1>
@@ -91,13 +98,23 @@ export default function CustomerLoginPage() {
               </div>
             )}
 
-            <Button
-              type="submit"
-              disabled={loading || phoneNumber.length !== 11}
-              className="w-full mobile-button btn-hover"
-            >
-              {loading ? 'Logging in...' : 'View My Rewards'}
-            </Button>
+            <div className="space-y-2">
+              <Button
+                type="submit"
+                disabled={loading || phoneNumber.length !== 11}
+                className="w-full mobile-button btn-hover"
+              >
+                {loading ? 'Logging in...' : 'View My Rewards'}
+              </Button>
+              <Button
+                type="button"
+                variant="outline"
+                className="w-full mobile-button"
+                onClick={() => window.history.back()}
+              >
+                Back
+              </Button>
+            </div>
           </form>
         </div>
       </Card>

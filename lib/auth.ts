@@ -1,4 +1,4 @@
-import { pool } from './db';
+import { sql } from '@vercel/postgres';
 import crypto from 'crypto';
 
 // Hash password using bcrypt-like algorithm (Node.js built-in)
@@ -38,10 +38,9 @@ export async function adminLogin(
   password: string
 ): Promise<{ admin_id: string; session_id: string } | null> {
   try {
-    const result = await pool.query(
-      'SELECT id, password_hash FROM admin_users WHERE username = $1 AND is_active = true',
-      [username]
-    );
+    const result = await sql`
+      SELECT id, password_hash FROM admin_users WHERE username = ${username} AND is_active = true
+    `;
 
     if (result.rows.length === 0) return null;
 
@@ -54,10 +53,9 @@ export async function adminLogin(
     const sessionToken = generateSessionToken();
     const expiresAt = new Date(Date.now() + 30 * 24 * 60 * 60 * 1000); // 30 days
 
-    await pool.query(
-      'INSERT INTO admin_sessions (admin_user_id, token, expires_at) VALUES ($1, $2, $3)',
-      [admin.id, sessionToken, expiresAt]
-    );
+    await sql`
+      INSERT INTO admin_sessions (admin_user_id, token, expires_at) VALUES (${admin.id}, ${sessionToken}, ${expiresAt})
+    `;
 
     return { admin_id: admin.id, session_id: sessionToken };
   } catch (error) {
@@ -71,13 +69,12 @@ export async function verifyAdminSession(
   sessionToken: string
 ): Promise<{ admin_id: string; username: string } | null> {
   try {
-    const result = await pool.query(
-      `SELECT au.id, au.username
+    const result = await sql`
+      SELECT au.id, au.username
        FROM admin_users au
        JOIN admin_sessions asess ON au.id = asess.admin_user_id
-       WHERE asess.token = $1 AND asess.expires_at > NOW() AND au.is_active = true`,
-      [sessionToken]
-    );
+       WHERE asess.token = ${sessionToken} AND asess.expires_at > NOW() AND au.is_active = true
+    `;
 
     if (result.rows.length === 0) return null;
     return result.rows[0];
@@ -92,10 +89,9 @@ export async function customerPhoneLogin(
   phoneNumber: string
 ): Promise<{ customer_id: string; session_id: string } | null> {
   try {
-    const result = await pool.query(
-      'SELECT id FROM customers WHERE phone = $1',
-      [phoneNumber]
-    );
+    const result = await sql`
+      SELECT id FROM customers WHERE phone = ${phoneNumber}
+    `;
 
     if (result.rows.length === 0) return null;
 
@@ -103,10 +99,9 @@ export async function customerPhoneLogin(
     const sessionToken = generateSessionToken();
     const expiresAt = new Date(Date.now() + 7 * 24 * 60 * 60 * 1000); // 7 days
 
-    await pool.query(
-      'INSERT INTO customer_sessions (customer_id, session_token, expires_at) VALUES ($1, $2, $3)',
-      [customer.id, sessionToken, expiresAt]
-    );
+    await sql`
+      INSERT INTO customer_sessions (customer_id, session_token, expires_at) VALUES (${customer.id}, ${sessionToken}, ${expiresAt})
+    `;
 
     return { customer_id: customer.id, session_id: sessionToken };
   } catch (error) {
@@ -120,13 +115,12 @@ export async function verifyCustomerSession(
   sessionToken: string
 ): Promise<{ customer_id: string; phone: string } | null> {
   try {
-    const result = await pool.query(
-      `SELECT c.id, c.phone
+    const result = await sql`
+      SELECT c.id, c.phone
        FROM customers c
        JOIN customer_sessions cs ON c.id = cs.customer_id
-       WHERE cs.session_token = $1 AND cs.expires_at > NOW()`,
-      [sessionToken]
-    );
+       WHERE cs.session_token = ${sessionToken} AND cs.expires_at > NOW()
+    `;
 
     if (result.rows.length === 0) return null;
     return result.rows[0];
@@ -139,10 +133,9 @@ export async function verifyCustomerSession(
 // Get admin info
 export async function getAdminInfo(adminId: string) {
   try {
-    const result = await pool.query(
-      'SELECT id, username, email, created_at FROM admin_users WHERE id = $1',
-      [adminId]
-    );
+    const result = await sql`
+      SELECT id, username, email, created_at FROM admin_users WHERE id = ${adminId}
+    `;
     return result.rows[0] || null;
   } catch (error) {
     console.error('Get admin info error:', error);
@@ -158,10 +151,9 @@ export async function createAdminUser(
 ): Promise<{ id: string } | null> {
   try {
     const passwordHash = await hashPassword(password);
-    const result = await pool.query(
-      'INSERT INTO admin_users (username, email, password_hash, is_active) VALUES ($1, $2, $3, true) RETURNING id',
-      [username, email, passwordHash]
-    );
+    const result = await sql`
+      INSERT INTO admin_users (username, email, password_hash, is_active) VALUES (${username}, ${email}, ${passwordHash}, true) RETURNING id
+    `;
     return result.rows[0];
   } catch (error) {
     console.error('Create admin user error:', error);
@@ -176,10 +168,9 @@ export async function updateAdminPassword(
 ): Promise<boolean> {
   try {
     const passwordHash = await hashPassword(newPassword);
-    const result = await pool.query(
-      'UPDATE admin_users SET password_hash = $1 WHERE id = $2 RETURNING id',
-      [passwordHash, adminId]
-    );
+    const result = await sql`
+      UPDATE admin_users SET password_hash = ${passwordHash} WHERE id = ${adminId} RETURNING id
+    `;
     return result.rows.length > 0;
   } catch (error) {
     console.error('Update admin password error:', error);
@@ -191,10 +182,7 @@ export async function updateAdminPassword(
 export async function logout(sessionToken: string, isAdmin: boolean): Promise<boolean> {
   try {
     const table = isAdmin ? 'admin_sessions' : 'customer_sessions';
-    await pool.query(
-      `DELETE FROM ${table} WHERE token = $1`,
-      [sessionToken]
-    );
+    await sql`DELETE FROM ${table} WHERE token = ${sessionToken}`;
     return true;
   } catch (error) {
     console.error('Logout error:', error);

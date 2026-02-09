@@ -1,10 +1,10 @@
-import { pool } from '@/lib/db';
+import { sql } from '@vercel/postgres';
 import { createAdminUser } from '@/lib/auth';
 
 export async function POST(request: Request) {
   try {
     // Check if any admin users exist
-    const checkResult = await pool.query('SELECT COUNT(*) as count FROM admin_users');
+    const checkResult = await sql`SELECT COUNT(*) as count FROM admin_users`;
     const adminCount = parseInt(checkResult.rows[0].count);
 
     if (adminCount > 0) {
@@ -52,7 +52,7 @@ export async function POST(request: Request) {
 
 export async function GET(request: Request) {
   try {
-    const checkResult = await pool.query('SELECT COUNT(*) as count FROM admin_users');
+    const checkResult = await sql`SELECT COUNT(*) as count FROM admin_users`;
     const adminCount = parseInt(checkResult.rows[0].count);
 
     return Response.json({ hasAdmins: adminCount > 0 });

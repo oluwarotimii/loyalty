@@ -54,9 +54,16 @@ export default function Home() {
         </div>
         
         <div className="relative z-10 text-center text-white px-4 max-w-4xl mx-auto">
-          <h1 className="text-4xl md:text-6xl font-bold mb-6 transition-all duration-700 ease-in-out">
-            Empower Your Loyalty Journey
-          </h1>
+          <div className="flex flex-col items-center">
+            <img 
+              src="/icon.png" 
+              alt="Femtch VIP Logo" 
+              className="h-20 w-20 object-contain mb-4"
+            />
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 transition-all duration-700 ease-in-out">
+              Empower Your Loyalty Journey
+            </h1>
+          </div>
           <p className="text-lg md:text-xl mb-8 max-w-2xl mx-auto transition-all duration-700 ease-in-out delay-150">
             Join our exclusive rewards program and unlock premium benefits tailored just for you. 
             Experience personalized perks that grow with your loyalty.

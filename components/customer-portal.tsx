@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { formatCurrency, formatNumberWithCommas } from '@/lib/db';
 import LoadingScreen from './loading-screen';
 import Leaderboard from './leaderboard';
 
@@ -238,12 +239,19 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
       {/* Header */}
       <header className="sticky-mobile bg-card border-b">
         <div className="container mx-auto px-4 py-3 flex justify-between items-center">
-          <div>
-            <h1 className="text-xl sm:text-2xl font-bold text-foreground">My Rewards</h1>
-            <p className="text-sm text-primary">Welcome, {customer.name || 'Valued Customer'}!</p>
-            {customer.phone && (
-              <p className="text-xs text-muted-foreground">Phone: {customer.phone}</p>
-            )}
+          <div className="flex items-center gap-2">
+            <img 
+              src="/icon.png" 
+              alt="Femtch VIP Logo" 
+              className="h-8 w-8 object-contain"
+            />
+            <div>
+              <h1 className="text-xl sm:text-2xl font-bold text-foreground">My Rewards</h1>
+              <p className="text-sm text-primary">Welcome, {customer.name || 'Valued Customer'}!</p>
+              {customer.phone && (
+                <p className="text-xs text-muted-foreground">Phone: {customer.phone}</p>
+              )}
+            </div>
           </div>
           <Button variant="outline" onClick={handleLogout} className="mobile-button">
             Logout
@@ -257,7 +265,7 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
           {/* <Card className="p-4 sm:p-6 bg-gradient-to-r from-medium-blue to-dusty-denim text-black mobile-card">
             <div className="space-y-3">
               <h2 className="text-blue sm:text-lg font-semibold">Your Total Spending</h2>
-              <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</div>
+              <div className="text-4xl sm:text-5xl font-bold">₦{formatCurrency(Number(customer.total_spending || customer.total_amount || 0))}</div>
               <p className="text-white/80">Total VIP spending</p>
             </div>
           </Card> */}
@@ -266,7 +274,7 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
           <Card className="p-4 sm:p-6 bg-gradient-to-r from-dusty-denim to-apricot-cream text-black mobile-card">
             <div className="space-y-3">
               <h2 className="text-blue sm:text-lg font-semibold">Your Total Spending</h2>
-              <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</div>
+              <div className="text-4xl sm:text-5xl font-bold">₦{formatCurrency(Number(customer.total_spending || customer.total_amount || 0))}</div>
               <p className="text-gray-700">Total spent with us</p>
             </div>
           </Card>
@@ -344,7 +352,7 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
                             : 'text-red-600'
                         }`}
                       >
-                        {Number(trans.amount) > 0 ? '+' : ''}{Number(trans.amount).toFixed(2)}
+                        {Number(trans.amount) > 0 ? '+' : ''}{formatCurrency(Number(trans.amount))}
                       </p>
                       <p className="text-xs text-muted-foreground">
                         {new Date(trans.created_at).toLocaleDateString()}
@@ -543,7 +551,7 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
                               </div>
                             </div>
                             <div className="text-right min-w-[80px] ml-2">
-                              <p className="font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</p>
+                              <p className="font-bold">₦{formatCurrency(Number(customer.total_spending || customer.total_amount || 0))}</p>
                               <p className="text-xs text-muted-foreground">spent</p>
                             </div>
                           </div>

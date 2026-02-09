@@ -1,26 +1,26 @@
-import { pool } from '@/lib/db';
+import { sql } from '@vercel/postgres';
 
 export async function GET(request: Request) {
   try {
     console.log('Fetching tiers from API...');
     
     // First, get all tiers
-    const tiersResult = await pool.query(`
+    const tiersResult = await sql`
       SELECT id, name, min_spend, rank_order, evaluation_period, is_active
       FROM tiers
       ORDER BY min_spend ASC
-    `);
+    `;
     
     console.log('Tiers query result:', tiersResult.rows);
     
     const tiers = tiersResult.rows;
     
     // Then get all benefits grouped by tier
-    const benefitsResult = await pool.query(`
+    const benefitsResult = await sql`
       SELECT tier_id, id, title, description
       FROM tier_benefits
       ORDER BY tier_id, title
-    `);
+    `;
     
     console.log('Benefits query result:', benefitsResult.rows);
     

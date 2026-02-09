@@ -121,6 +121,13 @@ export default function AdminLoginPage() {
       <Card className="w-full max-w-md p-8 shadow-xl">
         <div className="space-y-6">
           <div className="text-center">
+            <div className="flex justify-center mb-4">
+              <img 
+                src="/icon.png" 
+                alt="Femtch VIP Logo" 
+                className="h-16 w-16 object-contain"
+              />
+            </div>
             <h1 className="text-3xl font-bold text-foreground mb-2">
               Femtch VIP Admin
             </h1>
@@ -188,13 +195,23 @@ export default function AdminLoginPage() {
                 </div>
               )}
 
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full"
-              >
-                {loading ? 'Creating...' : 'Create Admin Account'}
-              </Button>
+              <div className="space-y-2">
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full"
+                >
+                  {loading ? 'Creating...' : 'Create Admin Account'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => window.history.back()}
+                >
+                  Back
+                </Button>
+              </div>
             </form>
           ) : (
             <form onSubmit={handleLogin} className="space-y-4">
@@ -234,13 +251,23 @@ export default function AdminLoginPage() {
                 </div>
               )}
 
-              <Button
-                type="submit"
-                disabled={loading}
-                className="w-full"
-              >
-                {loading ? 'Logging in...' : 'Login'}
-              </Button>
+              <div className="space-y-2">
+                <Button
+                  type="submit"
+                  disabled={loading}
+                  className="w-full"
+                >
+                  {loading ? 'Logging in...' : 'Login'}
+                </Button>
+                <Button
+                  type="button"
+                  variant="outline"
+                  className="w-full"
+                  onClick={() => window.history.back()}
+                >
+                  Back
+                </Button>
+              </div>
             </form>
           )}
 

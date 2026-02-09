@@ -8,6 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Trash2, Plus, Save, X } from 'lucide-react';
 import { toast } from 'sonner';
+import { formatNumberWithCommas } from '@/lib/db';
 
 interface TierBenefit {
   id?: string;
@@ -408,7 +409,7 @@ export default function TierEditor({ initialTiers }: TierEditorProps) {
                 </div>
               </div>
               <p className="text-sm text-muted-foreground">
-                Min: ₦{Number(tier.min_spend || 0).toFixed(2)} spend
+                Min: ₦{formatNumberWithCommas(Number(tier.min_spend || 0))} spend
               </p>
             </CardHeader>
             <CardContent>

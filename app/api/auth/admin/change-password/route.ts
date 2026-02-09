@@ -25,11 +25,10 @@ export async function POST(request: Request) {
     }
 
     // Verify current password
-    const { pool } = await import('@/lib/db');
-    const result = await pool.query(
-      'SELECT password_hash FROM admin_users WHERE id = $1',
-      [admin.admin_id]
-    );
+    const { sql } = await import('@vercel/postgres');
+    const result = await sql`
+      SELECT password_hash FROM admin_users WHERE id = ${admin.admin_id}
+    `;
 
     if (result.rows.length === 0) {
       return Response.json({ error: 'Admin not found' }, { status: 404 });

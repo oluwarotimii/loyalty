@@ -3,6 +3,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { formatCurrency } from '@/lib/db';
 
 interface Customer {
   id: string;
@@ -175,7 +176,7 @@ export default function Leaderboard({ customers, initialTiers }: LeaderboardProp
                                 </div>
                               </div>
                               <div className="text-right min-w-[80px] ml-2">
-                                <p className="font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</p>
+                                <p className="font-bold">₦{formatCurrency(Number(customer.total_spending || customer.total_amount || 0))}</p>
                                 <p className="text-xs text-muted-foreground">spent</p>
                               </div>
                             </div>
@@ -225,7 +226,7 @@ export default function Leaderboard({ customers, initialTiers }: LeaderboardProp
                           </div>
                         </div>
                         <div className="text-right min-w-[80px] ml-2">
-                          <p className="font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</p>
+                          <p className="font-bold">₦{formatCurrency(Number(customer.total_spending || customer.total_amount || 0))}</p>
                           <p className="text-xs text-muted-foreground">spent</p>
                         </div>
                       </div>

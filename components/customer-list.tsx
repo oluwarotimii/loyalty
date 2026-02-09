@@ -2,6 +2,7 @@
 
 import { Button } from '@/components/ui/button';
 import { Card } from '@/components/ui/card';
+import { formatCurrency } from '@/lib/db';
 
 interface Customer {
   id: string;
@@ -58,7 +59,7 @@ export default function CustomerList({
                     <p className="font-semibold truncate">{customer.name}</p>
                     <p className="text-xs text-muted-foreground truncate">{customer.email}</p>
                   </div>
-                  <span className="text-sm font-bold ml-2">₦{Number(customer.total_spending).toFixed(2)}</span>
+                  <span className="text-sm font-bold ml-2">₦{formatCurrency(Number(customer.total_spending))}</span>
                 </div>
               </div>
               {selectedCustomer?.id === customer.id && (

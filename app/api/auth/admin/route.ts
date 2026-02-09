@@ -1,4 +1,4 @@
-import { pool } from '@/lib/db';
+import { sql } from '@vercel/postgres';
 import { createAdminUser } from '@/lib/auth';
 import { cookies } from 'next/headers';
 import { verifyAdminSession } from '@/lib/auth';
@@ -18,9 +18,9 @@ export async function GET(request: Request) {
     }
 
     // Get all admin users
-    const result = await pool.query(
-      'SELECT id, username, email, is_active, created_at FROM admin_users ORDER BY created_at DESC'
-    );
+    const result = await sql`
+      SELECT id, username, email, is_active, created_at FROM admin_users ORDER BY created_at DESC
+    `;
 
     return Response.json(result.rows);
   } catch (error) {
