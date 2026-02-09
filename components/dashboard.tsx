@@ -77,6 +77,11 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
             <h1 className="text-xl sm:text-2xl md:text-3xl font-bold">Femtch VIP</h1>
             <p className="text-muted-foreground text-sm mt-1">Premium Loyalty Program Dashboard</p>
           </div>
+          <div className="flex items-center gap-2">
+            <div className="text-sm text-muted-foreground hidden md:block">
+              {customers.length} customers
+            </div>
+          </div>
         </div>
       </header>
 
@@ -85,13 +90,13 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
         {/* Desktop Tabs */}
         <div className="hidden sm:block">
           <Tabs defaultValue="customers" className="tabs-container space-y-4">
-            <TabsList className="w-full overflow-x-auto">
-              <TabsTrigger value="customers" className="mobile-tab whitespace-nowrap">Customers</TabsTrigger>
-              <TabsTrigger value="transactions" className="mobile-tab whitespace-nowrap">Transactions</TabsTrigger>
-              <TabsTrigger value="tiers" className="mobile-tab whitespace-nowrap">Tiers & Benefits</TabsTrigger>
-              <TabsTrigger value="bulk-upload" className="mobile-tab whitespace-nowrap">Bulk Upload</TabsTrigger>
-              <TabsTrigger value="leaderboard" className="mobile-tab whitespace-nowrap">Leaderboard</TabsTrigger>
-              <TabsTrigger value="notifications" className="mobile-tab whitespace-nowrap">Notifications</TabsTrigger>
+            <TabsList className="w-full overflow-x-auto h-10">
+              <TabsTrigger value="customers" className="mobile-tab whitespace-nowrap text-sm py-1.5 px-3">Customers</TabsTrigger>
+              <TabsTrigger value="transactions" className="mobile-tab whitespace-nowrap text-sm py-1.5 px-3">Transactions</TabsTrigger>
+              <TabsTrigger value="tiers" className="mobile-tab whitespace-nowrap text-sm py-1.5 px-3">Tiers</TabsTrigger>
+              <TabsTrigger value="bulk-upload" className="mobile-tab whitespace-nowrap text-sm py-1.5 px-3">Bulk Upload</TabsTrigger>
+              <TabsTrigger value="leaderboard" className="mobile-tab whitespace-nowrap text-sm py-1.5 px-3">Leaderboard</TabsTrigger>
+              {/* <TabsTrigger value="notifications" className="mobile-tab whitespace-nowrap text-sm py-1.5 px-3">Notifications</TabsTrigger> */}
             </TabsList>
 
             <TabsContent value="customers" className="space-y-4">
@@ -161,9 +166,9 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
               <Leaderboard customers={customers} initialTiers={initialTiers} />
             </TabsContent>
 
-            <TabsContent value="notifications" className="space-y-4">
+            {/* <TabsContent value="notifications" className="space-y-4">
               <NotificationPanel customers={customers} />
-            </TabsContent>
+            </TabsContent> */}
 
           </Tabs>
         </div>
@@ -174,15 +179,15 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
             <select
               value={activeTab}
               onChange={(e) => setActiveTab(e.target.value)}
-              className="w-full p-3 border border-input rounded-lg bg-background text-foreground mobile-input"
+              className="w-full p-2 border border-input rounded-md bg-background text-foreground mobile-input text-sm"
             >
               <option value="dashboard">Dashboard</option>
               <option value="customers">Customers</option>
               <option value="transactions">Transactions</option>
-              <option value="tiers">Tiers & Benefits</option>
+              <option value="tiers">Tiers</option>
               <option value="bulk-upload">Bulk Upload</option>
               <option value="leaderboard">Leaderboard</option>
-              <option value="notifications">Notifications</option>
+              {/* <option value="notifications">Notifications</option> */}
             </select>
           </div>
 
@@ -261,11 +266,11 @@ export default function Dashboard({ initialCustomers, initialTiers }: DashboardP
             </div>
           )}
 
-          {activeTab === 'notifications' && (
+          {/* {activeTab === 'notifications' && (
             <div className="space-y-4">
               <NotificationPanel customers={customers} />
             </div>
-          )}
+          )} */}
 
         </div>
       </div>

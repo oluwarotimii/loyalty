@@ -139,7 +139,12 @@ export default function Leaderboard({ customers, initialTiers }: LeaderboardProp
               return (
                 <div key={tier.id} className="space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-md font-semibold text-primary">{tier.name} Tier</h3>
+                    <div className="flex items-center gap-2">
+                      <h3 className="text-md font-semibold text-primary">Tier</h3>
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                        {tier.name}
+                      </span>
+                    </div>
                     <span className="text-sm text-muted-foreground">
                       {tierCustomers.length} {tierCustomers.length === 1 ? 'member' : 'members'}
                     </span>
@@ -187,7 +192,12 @@ export default function Leaderboard({ customers, initialTiers }: LeaderboardProp
           {customersByTier['Unassigned'] && customersByTier['Unassigned'].length > 0 && (
             <div className="space-y-3">
               <div className="flex items-center justify-between">
-                <h3 className="text-md font-semibold text-muted-foreground">Unassigned</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-md font-semibold text-muted-foreground">Tier</h3>
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+                    Unassigned
+                  </span>
+                </div>
                 <span className="text-sm text-muted-foreground">
                   {customersByTier['Unassigned'].length} {customersByTier['Unassigned'].length === 1 ? 'member' : 'members'}
                 </span>
@@ -257,7 +267,7 @@ export default function Leaderboard({ customers, initialTiers }: LeaderboardProp
                             <p className="text-xs text-muted-foreground truncate">({customer.phone})</p>
                           )}
                           {(customerTier || customer.current_tier) && (
-                            <span className="inline-flex items-center px-2 py-0.5 rounded-full text-xs font-medium bg-secondary text-secondary-foreground">
+                            <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
                               {customer.current_tier || customerTier?.name}
                             </span>
                           )}

@@ -56,7 +56,7 @@ export default function CustomerForm({ onCustomerAdded }: CustomerFormProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button className="w-full mobile-button">
+        <Button className="w-full mobile-button text-sm py-2">
           <Plus className="w-4 h-4 mr-2" />
           Add Customer
         </Button>
@@ -99,10 +99,10 @@ export default function CustomerForm({ onCustomerAdded }: CustomerFormProps) {
           </div>
           {error && <p className="text-sm text-destructive">{error}</p>}
           <div className="flex gap-2 pt-2">
-            <Button type="submit" disabled={loading} className="flex-1 mobile-button">
+            <Button type="submit" disabled={loading} className="flex-1 mobile-button text-sm py-2">
               {loading ? 'Adding...' : 'Add Customer'}
             </Button>
-            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="mobile-button">
+            <Button type="button" variant="outline" onClick={() => setOpen(false)} className="mobile-button text-sm py-2">
               Cancel
             </Button>
           </div>

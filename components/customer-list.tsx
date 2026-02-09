@@ -62,14 +62,16 @@ export default function CustomerList({
                 </div>
               </div>
               {selectedCustomer?.id === customer.id && (
-                <Button
-                  variant="destructive"
-                  size="sm"
-                  onClick={() => handleDelete(customer.id)}
-                  className="mt-2 w-full mobile-button"
-                >
-                  Delete
-                </Button>
+                <div className="flex justify-end mt-2">
+                  <Button
+                    variant="destructive"
+                    size="sm"
+                    onClick={() => handleDelete(customer.id)}
+                    className="mobile-button px-3 py-1 text-xs"
+                  >
+                    Delete
+                  </Button>
+                </div>
               )}
             </div>
           ))

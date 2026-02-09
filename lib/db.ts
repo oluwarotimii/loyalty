@@ -1,5 +1,17 @@
 import { sql } from '@vercel/postgres';
 
+// Helper function to format numbers with commas
+export function formatCurrency(amount: number): string {
+  return new Intl.NumberFormat('en-US', {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  }).format(amount);
+}
+
+export function formatNumberWithCommas(num: number): string {
+  return num.toLocaleString();
+}
+
 // Export sql as pool to maintain compatibility
 export const pool = sql;
 
@@ -185,7 +197,7 @@ export async function getTransactions(customerId?: string) {
   return result.rows;
 }
 
-export async function createTransaction(customerId: string, amount: number, reference: string, type: string = 'purchase') {
+export async function createTransaction(customerId: string, amount: number, reference: string) {
   const client = await sql.connect();
   try {
     await client.query('BEGIN');
@@ -193,9 +205,9 @@ export async function createTransaction(customerId: string, amount: number, refe
     // Insert transaction using amount column
     // Using reference column for description since that's what's available in the schema
     const result = await client.query(
-      `INSERT INTO transactions (customer_id, amount, reference, type)
-       VALUES ($1, $2, $3, $4) RETURNING *`,
-      [customerId, amount, reference || '', type]
+      `INSERT INTO transactions (customer_id, amount, reference)
+       VALUES ($1, $2, $3) RETURNING *`,
+      [customerId, amount, reference || '']
     );
 
     // Calculate new total spending for the customer

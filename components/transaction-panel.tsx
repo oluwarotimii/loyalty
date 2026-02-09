@@ -13,7 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { ShoppingCart, User, Star, Gift, DollarSign } from 'lucide-react';
+import { DollarSign } from 'lucide-react';
 
 interface Customer {
   id: string;
@@ -38,7 +38,6 @@ export default function TransactionPanel({
 }: TransactionPanelProps) {
   const [formData, setFormData] = useState({
     customerId: selectedCustomer?.id || '',
-    type: 'purchase',
     amount: '',
     description: '',
   });
@@ -55,7 +54,6 @@ export default function TransactionPanel({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           customerId: formData.customerId,
-          type: formData.type,
           amount: parseInt(formData.amount),
           description: formData.description,
         }),
@@ -68,7 +66,7 @@ export default function TransactionPanel({
       const updatedCustomer = await customerResponse.json();
       onCustomerUpdated(updatedCustomer);
 
-      setFormData({ customerId: formData.customerId, type: 'purchase', amount: '', description: '' });
+      setFormData({ customerId: formData.customerId, amount: '', description: '' });
     } catch (error) {
       console.error('Error:', error);
     } finally {
@@ -76,15 +74,6 @@ export default function TransactionPanel({
     }
   };
 
-  const getIconForType = (type: string) => {
-    const icons: { [key: string]: JSX.Element } = {
-      purchase: <ShoppingCart className="w-5 h-5" />,
-      referral: <User className="w-5 h-5" />,
-      bonus: <Star className="w-5 h-5" />,
-      redemption: <Gift className="w-5 h-5" />,
-    };
-    return icons[type] || <DollarSign className="w-5 h-5" />;
-  };
 
   return (
     <div className="grid grid-cols-1 gap-4 transaction-panel-grid">
@@ -107,20 +96,6 @@ export default function TransactionPanel({
             </Select>
           </div>
 
-          <div>
-            <label className="text-sm font-medium text-label">Type</label>
-            <Select value={formData.type} onValueChange={(value) => setFormData({ ...formData, type: value })}>
-              <SelectTrigger>
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="purchase">Purchase</SelectItem>
-                <SelectItem value="referral">Referral</SelectItem>
-                <SelectItem value="bonus">Bonus</SelectItem>
-                <SelectItem value="redemption">Redemption</SelectItem>
-              </SelectContent>
-            </Select>
-          </div>
 
           <div>
             <label className="text-sm font-medium text-label">Amount</label>
@@ -144,37 +119,12 @@ export default function TransactionPanel({
             />
           </div>
 
-          <Button type="submit" disabled={loading || !formData.customerId} className="w-full mobile-button">
+          <Button type="submit" disabled={loading || !formData.customerId} className="w-full mobile-button text-sm py-2">
             {loading ? 'Processing...' : 'Add Transaction'}
           </Button>
         </form>
       </Card>
 
-      {selectedCustomer && (
-        <Card className="p-3 mobile-card">
-          <h3 className="text-lg font-bold mb-3">Quick Add Amount</h3>
-          <div className="space-y-2">
-            {[10, 50, 100, 500].map((amount) => (
-              <Button
-                key={amount}
-                variant="outline"
-                onClick={() => {
-                  setFormData({
-                    customerId: selectedCustomer.id,
-                    type: 'bonus',
-                    amount: amount.toString(),
-                    description: 'Quick bonus',
-                  });
-                }}
-                className="w-full mobile-button flex items-center justify-center gap-2"
-              >
-                {getIconForType('bonus')}
-                Add ₦{amount}
-              </Button>
-            ))}
-          </div>
-        </Card>
-      )}
     </div>
   );
 }

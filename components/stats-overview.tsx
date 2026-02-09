@@ -24,8 +24,10 @@ export default function StatsOverview({ customers }: StatsOverviewProps) {
   const topCustomer = customers.length > 0 ? customers.reduce((max, c) => (Number(c.total_spending) > Number(max.total_spending) ? c : max)) : null;
 
   const stats = [
-    { label: 'Total Customers', value: totalCustomers, icon: <Users className="w-6 h-6 sm:w-8 sm:h-8" /> },
-    { label: 'Top Customer', value: topCustomer?.name || 'N/A', icon: <Crown className="w-6 h-6 sm:w-8 sm:h-8" /> },
+    { label: 'Total Customers', value: totalCustomers, icon: <Users className="w-5 h-5 sm:w-6 sm:h-6" /> },
+    // { label: 'Total Spending', value: `₦${totalSpending.toLocaleString()}`, icon: <DollarSign className="w-5 h-5 sm:w-6 sm:h-6" /> },
+    // { label: 'Avg. Spending', value: `₦${avgSpending.toLocaleString()}`, icon: <TrendingUp className="w-5 h-5 sm:w-6 sm:h-6" /> },
+    { label: 'Top Customer', value: topCustomer?.name || 'N/A', icon: <Crown className="w-5 h-5 sm:w-6 sm:h-6" /> },
   ];
 
   return (
@@ -35,7 +37,7 @@ export default function StatsOverview({ customers }: StatsOverviewProps) {
           <div className="flex items-center justify-between">
             <div>
               <p className="text-muted-foreground text-xs sm:text-sm">{stat.label}</p>
-              <p className="text-xl sm:text-2xl font-normal mt-1">{stat.value}</p>
+              <p className="text-lg sm:text-xl font-normal mt-1">{stat.value}</p>
             </div>
             <div className="text-foreground">{stat.icon}</div>
           </div>

@@ -243,7 +243,7 @@ export default function TierEditor({ initialTiers }: TierEditorProps) {
     <div className="space-y-6">
       <div className="flex justify-between items-center">
         <h2 className="text-2xl font-bold">Tier Management</h2>
-        <Button onClick={handleAddTier}>
+        <Button onClick={handleAddTier} className="text-sm py-2">
           <Plus className="mr-2 h-4 w-4" /> Add Tier
         </Button>
       </div>
@@ -336,7 +336,7 @@ export default function TierEditor({ initialTiers }: TierEditorProps) {
                   onChange={(e) => setNewBenefit({...newBenefit, description: e.target.value})}
                   placeholder="Description (optional)"
                 />
-                <Button onClick={handleAddBenefit} variant="outline">
+                <Button onClick={handleAddBenefit} variant="outline" className="text-xs py-1">
                   <Plus className="h-4 w-4" />
                 </Button>
               </div>
@@ -370,7 +370,7 @@ export default function TierEditor({ initialTiers }: TierEditorProps) {
             </div>
             
             <div className="flex space-x-2 pt-4">
-              <Button onClick={handleSaveTier} disabled={saving}>
+              <Button onClick={handleSaveTier} disabled={saving} className="text-sm py-2">
                 {saving ? (
                   <>
                     <Save className="mr-2 h-4 w-4 animate-spin" />
@@ -383,7 +383,7 @@ export default function TierEditor({ initialTiers }: TierEditorProps) {
                   </>
                 )}
               </Button>
-              <Button onClick={handleCancelEdit} variant="outline" disabled={saving}>
+              <Button onClick={handleCancelEdit} variant="outline" disabled={saving} className="text-sm py-2">
                 <X className="mr-2 h-4 w-4" />
                 Cancel
               </Button>
@@ -398,9 +398,14 @@ export default function TierEditor({ initialTiers }: TierEditorProps) {
             <CardHeader>
               <div className="flex justify-between items-start">
                 <CardTitle className="text-xl">{tier.name}</CardTitle>
-                <Badge variant={tier.is_active ? "default" : "secondary"}>
-                  {tier.is_active ? 'Active' : 'Inactive'}
-                </Badge>
+                <div className="flex gap-2">
+                  <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                    {tier.name}
+                  </span>
+                  <Badge variant={tier.is_active ? "default" : "secondary"}>
+                    {tier.is_active ? 'Active' : 'Inactive'}
+                  </Badge>
+                </div>
               </div>
               <p className="text-sm text-muted-foreground">
                 Min: ₦{Number(tier.min_spend || 0).toFixed(2)} spend
@@ -431,6 +436,7 @@ export default function TierEditor({ initialTiers }: TierEditorProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => handleEditTier(tier)}
+                  className="text-xs py-1"
                 >
                   Edit
                 </Button>
@@ -438,7 +444,7 @@ export default function TierEditor({ initialTiers }: TierEditorProps) {
                   variant="outline"
                   size="sm"
                   onClick={() => handleDeleteTier(tier.id!)}
-                  className="text-red-500 hover:text-red-700"
+                  className="text-red-500 hover:text-red-700 text-xs py-1"
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>

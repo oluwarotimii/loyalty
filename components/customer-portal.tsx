@@ -60,6 +60,7 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
   const [tiers, setTiers] = useState<TierInfo[]>([]);
   const [allCustomersState, setAllCustomersState] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
   const dobInputRef = useRef<HTMLInputElement>(null);
   const addressInputRef = useRef<HTMLInputElement>(null);
 
@@ -156,23 +157,26 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
 
   async function handleSaveInfo() {
     if (!customer) return;
-    
+
     const dobValue = dobInputRef.current?.value;
     const addressValue = addressInputRef.current?.value;
-    
+
     const updates: { date_of_birth?: string; address?: string } = {};
-    
+
     if (dobValue !== undefined && dobValue !== customer.date_of_birth) {
       updates.date_of_birth = dobValue;
     }
-    
+
     if (addressValue !== undefined && addressValue !== customer.address) {
       updates.address = addressValue;
     }
-    
+
     if (Object.keys(updates).length > 0) {
       await handleUpdateInfo(updates);
     }
+    
+    // Reset editing state after saving
+    setIsEditing(false);
   }
 
   if (loading) {
@@ -250,13 +254,13 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
       <div className="container mx-auto px-4 py-4 sm:py-6">
         <div className="space-y-mobile">
           {/* Amount Card */}
-          <Card className="p-4 sm:p-6 bg-gradient-to-r from-medium-blue to-dusty-denim text-black mobile-card">
+          {/* <Card className="p-4 sm:p-6 bg-gradient-to-r from-medium-blue to-dusty-denim text-black mobile-card">
             <div className="space-y-3">
               <h2 className="text-blue sm:text-lg font-semibold">Your Total Spending</h2>
               <div className="text-4xl sm:text-5xl font-bold">₦{Number(customer.total_spending || customer.total_amount || 0).toFixed(2)}</div>
               <p className="text-white/80">Total VIP spending</p>
             </div>
-          </Card>
+          </Card> */}
 
           {/* Spending Card */}
           <Card className="p-4 sm:p-6 bg-gradient-to-r from-dusty-denim to-apricot-cream text-black mobile-card">
@@ -273,9 +277,14 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
               <div>
                 <h3 className="text-base sm:text-lg font-semibold mb-2">Current Tier</h3>
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between mb-3 sm:mb-4 gap-2">
-                  <span className="text-xl sm:text-2xl font-bold text-primary">
-                    {currentTierName}
-                  </span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xl sm:text-2xl font-bold text-primary">
+                      Current Tier:
+                    </span>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      {currentTierName}
+                    </span>
+                  </div>
                   {nextTier && (
                     <span className="text-xs sm:text-sm text-muted-foreground">
                       ₦{amountToNextTier} to {nextTier.name}
@@ -349,8 +358,20 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
 
           {/* Personal Information */}
           <Card className="p-4 sm:p-6 mobile-card">
-            <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Personal Information</h3>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4">
+            <div className="flex justify-between items-center mb-3 sm:mb-4">
+              <h3 className="text-base sm:text-lg font-semibold">Personal Information</h3>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => setIsEditing(!isEditing)}
+                className="text-xs sm:text-sm"
+              >
+                {isEditing ? 'Cancel' : 'Edit'}
+              </Button>
+            </div>
+            
+            {/* Display Information */}
+            <div className={`${isEditing ? 'hidden' : 'block'} grid grid-cols-1 sm:grid-cols-2 gap-4 mb-4`}>
               <div>
                 <label className="block text-sm font-medium mb-1">Email</label>
                 <p className="text-sm">{customer.email || 'Not provided'}</p>
@@ -381,7 +402,7 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
             </div>
 
             {/* Update Personal Information Form */}
-            <div className="pt-4 border-t border-border">
+            <div className={`${isEditing ? 'block' : 'hidden'} pt-4 border-t border-border`}>
               <h4 className="text-sm font-semibold mb-2">Update Information</h4>
               <p className="text-xs text-muted-foreground mb-3">Note: Email cannot be changed after account creation</p>
               <div className="space-y-3">
@@ -406,13 +427,23 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
                     className="w-full px-3 py-2 text-sm border border-input rounded-md bg-background"
                   />
                 </div>
-                <Button
-                  type="button"
-                  onClick={handleSaveInfo}
-                  className="w-full sm:w-auto"
-                >
-                  Save Information
-                </Button>
+                <div className="flex gap-2">
+                  <Button
+                    type="button"
+                    onClick={handleSaveInfo}
+                    className="w-full sm:w-auto"
+                  >
+                    Save Information
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={() => setIsEditing(false)}
+                    className="w-full sm:w-auto"
+                  >
+                    Cancel
+                  </Button>
+                </div>
               </div>
             </div>
           </Card>
@@ -460,7 +491,12 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
               {/* Current Tier Leaderboard */}
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <h3 className="text-md font-semibold text-primary">{currentTierName} Tier</h3>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-md font-semibold text-primary">Tier</h3>
+                    <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                      {currentTierName}
+                    </span>
+                  </div>
                   <span className="text-sm text-muted-foreground">
                     {allCustomersState.filter(c => c.current_tier === currentTierName).length} members
                   </span>
@@ -499,10 +535,10 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
                                   {isCurrentUser ? `${customer.name} (You)` : customer.name}
                                 </p>
                                 <div className="flex items-center gap-2">
-                                  <p className="text-xs text-muted-foreground truncate">{customer.email}</p>
-                                  {customer.phone && (
+                                  {/* <p className="text-xs text-muted-foreground truncate">{customer.email}</p> */}
+                                  {/* {customer.phone && (
                                     <p className="text-xs text-muted-foreground truncate">({customer.phone})</p>
-                                  )}
+                                  )} */}
                                 </div>
                               </div>
                             </div>
@@ -527,9 +563,14 @@ export default function CustomerPortal({ allCustomers = [], initialTiers = [] }:
                     <div key={tier.id} className="border border-border rounded-lg p-4">
                       <div className="flex justify-between items-start mb-2">
                         <h4 className="font-semibold text-sm">{tier.name}</h4>
-                        <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-1 rounded-full">
-                          ₦{(tier.min_amount || 0).toLocaleString()}+ spending
-                        </span>
+                        <div className="flex items-center gap-2">
+                          <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-green-100 text-green-800">
+                            {tier.name}
+                          </span>
+                          <span className="text-xs font-medium bg-secondary text-secondary-foreground px-2 py-1 rounded-full">
+                            ₦{(tier.min_amount || 0).toLocaleString()}+ spending
+                          </span>
+                        </div>
                       </div>
                       
                       {tier.benefits && tier.benefits.length > 0 && (
