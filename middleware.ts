@@ -24,9 +24,9 @@ export function middleware(request: NextRequest) {
     }
   }
 
-  // Redirect root to admin login
+  // Redirect root to home page
   if (pathname === '/') {
-    return NextResponse.redirect(new URL('/admin/login', request.url));
+    return NextResponse.next(); // Allow access to home page
   }
 
   return NextResponse.next();

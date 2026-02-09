@@ -99,17 +99,6 @@ export default function CustomerLoginPage() {
               {loading ? 'Logging in...' : 'View My Rewards'}
             </Button>
           </form>
-
-          <div className="pt-4 border-t border-border">
-            <p className="text-center text-sm text-muted-foreground">
-              <Link
-                href="/admin/login"
-                className="text-primary hover:underline font-medium"
-              >
-                Admin Login
-              </Link>
-            </p>
-          </div>
         </div>
       </Card>
     </div>

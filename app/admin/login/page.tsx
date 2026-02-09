@@ -246,13 +246,7 @@ export default function AdminLoginPage() {
 
           <div className="text-center text-sm">
             <p className="text-muted-foreground">
-              Need access?{' '}
-              <Link
-                href="/customer/login"
-                className="text-blue-600 hover:underline font-medium"
-              >
-                Customer Portal
-              </Link>
+              Admin access only
             </p>
           </div>
         </div>
