@@ -1,9 +1,41 @@
+'use client';
+
+import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
-import { getTiers } from '@/lib/db';
 
-export default async function Home() {
-  const tiers = await getTiers();
+interface Tier {
+  id: string;
+  name: string;
+  min_amount: number;
+  benefits: Array<{
+    id?: string;
+    title?: string;
+    description?: string;
+  } | string>;
+}
+
+export default function Home() {
+  const [tiers, setTiers] = useState<Tier[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchTiers = async () => {
+      try {
+        const response = await fetch('/api/tiers');
+        if (response.ok) {
+          const data = await response.json();
+          setTiers(data);
+        }
+      } catch (error) {
+        console.error('Error fetching tiers:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    fetchTiers();
+  }, []);
 
   return (
     <main className="min-h-screen bg-background">
@@ -47,51 +79,57 @@ export default async function Home() {
             Membership Tiers
           </h2>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {tiers.map((tier, index) => (
-              <div 
-                key={tier.id} 
-                className="border border-border rounded-xl p-6 bg-background hover:shadow-lg transition-shadow duration-300"
-                style={{
-                  animationDelay: `${index * 150}ms`,
-                }}
-              >
-                <h3 className="text-2xl font-bold mb-4 text-primary">{tier.name}</h3>
-                <p className="text-lg mb-4">
-                  Starting at ₦{Number(tier.min_amount).toLocaleString()}
-                </p>
-                
-                <div className="space-y-2 mb-6">
-                  <h4 className="font-semibold text-sm text-muted-foreground">Benefits:</h4>
-                  {tier.benefits && tier.benefits.length > 0 ? (
-                    <ul className="space-y-1">
-                      {tier.benefits.slice(0, 4).map((benefit: any, idx: number) => (
-                        <li key={idx} className="text-sm flex items-start">
-                          <span className="text-primary mr-2">•</span>
-                          {typeof benefit === 'string' 
-                            ? benefit 
-                            : (benefit.title || benefit.description)}
-                        </li>
-                      ))}
-                      {tier.benefits.length > 4 && (
-                        <li className="text-sm text-muted-foreground">
-                          +{tier.benefits.length - 4} more benefits
-                        </li>
-                      )}
-                    </ul>
-                  ) : (
-                    <p className="text-sm text-muted-foreground">No specific benefits defined</p>
-                  )}
-                </div>
-                
-                <div className="text-center mt-6">
-                  <div className="inline-block bg-muted text-muted-foreground text-xs px-3 py-1 rounded-full">
-                    Spend ₦{Number(tier.min_amount).toLocaleString()} to qualify
+          {loading ? (
+            <div className="flex justify-center">
+              <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {tiers.map((tier, index) => (
+                <div 
+                  key={tier.id} 
+                  className="border border-border rounded-xl p-6 bg-background hover:shadow-lg transition-shadow duration-300"
+                  style={{
+                    animationDelay: `${index * 150}ms`,
+                  }}
+                >
+                  <h3 className="text-2xl font-bold mb-4 text-primary">{tier.name}</h3>
+                  <p className="text-lg mb-4">
+                    Starting at ₦{Number(tier.min_amount).toLocaleString()}
+                  </p>
+                  
+                  <div className="space-y-2 mb-6">
+                    <h4 className="font-semibold text-sm text-muted-foreground">Benefits:</h4>
+                    {tier.benefits && tier.benefits.length > 0 ? (
+                      <ul className="space-y-1">
+                        {tier.benefits.slice(0, 4).map((benefit: any, idx: number) => (
+                          <li key={idx} className="text-sm flex items-start">
+                            <span className="text-primary mr-2">•</span>
+                            {typeof benefit === 'string' 
+                              ? benefit 
+                              : (benefit.title || benefit.description)}
+                          </li>
+                        ))}
+                        {tier.benefits.length > 4 && (
+                          <li className="text-sm text-muted-foreground">
+                            +{tier.benefits.length - 4} more benefits
+                          </li>
+                        )}
+                      </ul>
+                    ) : (
+                      <p className="text-sm text-muted-foreground">No specific benefits defined</p>
+                    )}
+                  </div>
+                  
+                  <div className="text-center mt-6">
+                    <div className="inline-block bg-muted text-muted-foreground text-xs px-3 py-1 rounded-full">
+                      Spend ₦{Number(tier.min_amount).toLocaleString()} to qualify
+                    </div>
                   </div>
                 </div>
-              </div>
-            ))}
-          </div>
+              ))}
+            </div>
+          )}
         </div>
       </section>
 
